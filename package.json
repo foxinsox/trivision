@@ -1,0 +1,26 @@
+{
+  "name": "trivision",
+  "version": "0.9.0",
+  "description": "A interactive trivision to display your images, built with three.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/foxinsox/trivision"
+  },
+  "keywords": [
+    "npm",
+    "trivision",
+    "three.js",
+    "interactive",
+    "image",
+    "billboard",
+    "slideshow",
+    "webgl",
+    "gallery"
+  ],
+  "author": "Alexander Pospischil",
+  "license": "MIT"
+}
