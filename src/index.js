@@ -26,18 +26,18 @@ const three = window.THREE
 
 
 class Prism extends Mesh {
-    constructor(index, prismCount, materials, prismWidth, prismHeight, shadows) {
+    constructor(index, prismCount, materials, prismWidth, prismHeight, shadows, horizontal) {
         const geometry = new Geometry();
         super(geometry, materials);
         this._step = 0;
         this.castShadow = shadows;
         this.receiveShadow = shadows;
-        this.geometry = this._calculateGeometry(index, prismCount, prismWidth, prismHeight);
+        this.geometry = this._calculateGeometry(index, prismCount, prismWidth, prismHeight, horizontal);
     }
     get step() { return this._step; };
     set step(step) { this._step = step; };
 
-    _calculateGeometry(index, prismCount, prismWidth, prismHeight) {
+    _calculateGeometry(index, prismCount, prismWidth, prismHeight, horizontal) {
         /**
         *         2C                   5F
         *        /\                  /\
@@ -46,6 +46,8 @@ class Prism extends Mesh {
         */
 
         //calculate equilateral triangle coordinates for two triangles (3D)
+
+
         const vertices = [], parts = 3, triangleAmount = 2
         const triangleRadius = prismHeight * Math.sqrt(3) / 3;
         for (let j = 0; j < triangleAmount; j++) {
@@ -55,6 +57,7 @@ class Prism extends Mesh {
                 vertices.push(v);
             }
         }
+
 
         const BAC = new Face3(1, 0, 2);
         const EDF = new Face3(3, 4, 5);
@@ -79,11 +82,18 @@ class Prism extends Mesh {
         // const NW = new Vector2(1, 0);
         // const NE = new Vector2(1, 1);
 
-        const SW = new Vector2(0, index / prismCount);
-        const SE = new Vector2(1, index / prismCount);
-        const NW = new Vector2(0, (index + 1) / prismCount);
-        const NE = new Vector2(1, (index + 1) / prismCount);
-
+        let SW, SE, NW, NE;
+        if (horizontal) {
+            SW = new Vector2(0, index / prismCount);
+            SE = new Vector2(1, index / prismCount);
+            NW = new Vector2(0, (index + 1) / prismCount);
+            NE = new Vector2(1, (index + 1) / prismCount);
+        } else {
+            SW = new Vector2(index / prismCount, 1);
+            SE = new Vector2(index / prismCount, 0);
+            NW = new Vector2((index + 1) / prismCount, 1);
+            NE = new Vector2((index + 1) / prismCount, 0);
+        }
         const geometry = new Geometry();
         geometry.vertices = vertices;
         geometry.faces = [BAC, EDF, ADC, CDF, CFB, BFE, BEA, AED];
@@ -116,7 +126,7 @@ class Prism extends Mesh {
 }
 
 export default class extends Group {
-    constructor(content, width, height, easing = 0.035, prismCount = 24, speed = 4, shadows = true) {
+    constructor(content, width, height, horizontal = false, easing = 0.05, prismCount = 24, speed = 4, shadows = true) {
         super();
         //init class fields
         this._content = content;   //array containing image paths/urls or THREE.Color objects. this array can contain different types!
@@ -126,11 +136,12 @@ export default class extends Group {
         this._prismCount = prismCount;
         this._speed = speed;
         this._shadows = shadows;
+        this._horizontal = horizontal;
         if (content) this._init();
     }
 
     //Getters & Setters
-    set content(content) { this._content = content; this._init(); };
+    set content(content) { this._content = content; };
     get content() { return this._content; };
     set width(width) { this._width = width; this._init(); };
     get width() { return this._width; };
@@ -144,6 +155,8 @@ export default class extends Group {
     get speed() { return this._speed; };
     set shadows(shadows) { this._shadows = shadows; };
     get shadows() { return this._shadows; };
+    set horizontal(horizontal) { this._horizontal = horizontal; this._init() };
+    get horizontal() { return this._horizontal; };
 
     _init() {
 
@@ -164,21 +177,30 @@ export default class extends Group {
             }
         })
 
+        let prismWidth, prismHeight;
+        if (this.horizontal) {
+            prismWidth = this.width * 0.5;
+            prismHeight = this.height * 0.5 / this.prismCount;
+        } else {
+            prismWidth = this.height * 0.5;
+            prismHeight = this.width * 0.5 / this.prismCount;
+        }
 
-        const prismWidth = this.width * 0.5;
-        const prismHeight = this.height * 0.5 / this.prismCount;
         for (let index = 0; index < this.prismCount; index++) {
-            const prism = new Prism(index, this.prismCount, this.materials, prismWidth, prismHeight, this.shadows);
+            const prism = new Prism(index, this.prismCount, this.materials, prismWidth, prismHeight, this.shadows, this.horizontal);
             //arrange position for threevision structure
-            prism.rotation.y += Math.PI / 2
+            prism.rotation.y += Math.PI / 2;
             prism.position.y -= (this.prismCount / 2 * prismHeight) - prismHeight / 2;
             prism.position.y += index * prismHeight;
             this.add(prism);
         }
+        if (!this.horizontal) {
+            this.rotation.z += Math.PI / 2;
+        }
         this.readyToRefresh = false;
 
         //array that contains all prism rotationsZ from previous animation frame
-        this.prev_rotation_Z = [];
+        this.prev_rotation = [];
         this.clock = new Clock();
         this.prev_step = 0;
         this.prev_mouse = new Vector3(0, 0, 0);
@@ -189,8 +211,12 @@ export default class extends Group {
     update(step, mouse, scene, camera) {
         if (mouse && scene && camera) {
             const cur_mouse = new Vector3(mouse.x, mouse.y, mouse.z);
-            const delta_mouse = new Vector3().subVectors(cur_mouse, this.prev_mouse);
-            if (!this.readyToRefresh && delta_mouse.y !== 0) {
+            const delta_mouse = new Vector3().subVectors(this.prev_mouse, cur_mouse);
+
+            let delta;
+            if (this.horizontal) delta = delta_mouse.y;
+            else delta = delta_mouse.x;
+            if (!this.readyToRefresh && delta !== 0) {
                 // update the picking ray with the camera and mouse position
                 this.raycaster.setFromCamera(mouse, camera);
                 // calculate objects intersecting the picking ray
@@ -199,11 +225,7 @@ export default class extends Group {
                     const uuid = intersects[i].object.uuid;
                     const prism = this.children.find(prism => prism.uuid === uuid);
                     if (prism) {
-                        if (delta_mouse.y > 0) {
-                            prism.step -= 1;     // = mouse.y - newMouse.y;
-                        } else {
-                            prism.step += 1;
-                        }
+                        prism.step += delta * 10;
                     }
                 }
             }
@@ -227,13 +249,13 @@ export default class extends Group {
 
         let totalMovement = 0;
         this.children.map((prism, index) => {
-            const dz = prism.rotation.z - prism.step * radians_per_step;
+            const dz = prism.rotation.z - Math.round(prism.step) * radians_per_step;
             totalMovement += Math.abs(Math.min(dz * this.easing, stp));
             prism.rotation.z -= Math.min(dz * this.easing, stp);
             //1) if previous rot exists and if previous rot was in different angle segment than current: change texture
-            if (this.prev_rotation_Z[index]) {
+            if (this.prev_rotation[index]) {
                 const angleSection = this._getAngleSection(prism.rotation.z);
-                const _angleSection = this._getAngleSection(this.prev_rotation_Z[index]);
+                const _angleSection = this._getAngleSection(this.prev_rotation[index]);
                 //if prism just rotated over into a new angle section: reload new texture in the back
                 if (angleSection !== _angleSection) {
                     //check direction of rotation based on if dz is positive or negative. if it rotates forward, shift 3 images ahead, if not shift 3 backwards
@@ -275,7 +297,7 @@ export default class extends Group {
                     prism.geometry.groupsNeedUpdate = true;
                 }
             }
-            this.prev_rotation_Z[index] = prism.rotation.z;
+            this.prev_rotation[index] = prism.rotation.z;
         })
 
         if (this.readyToRefresh && totalMovement < 0.01) {
