@@ -22,7 +22,7 @@ module.exports = {
         extensions: ['.js'],
         alias: {
             // a list of module name aliases
-            "module": "trivision",
+            "module": "threevision",
         },
     },
 };

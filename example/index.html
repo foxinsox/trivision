@@ -5,7 +5,7 @@
     }
   </style>
   <script src="../node_modules/three/build/three.min.js"></script>
-  <script src="../dist/trivision.js"></script>
+  <script src="../dist/threevision.js"></script>
   <!-- <script src="../node_modules/three/examples/js/controls/TrackballControls.js"></script> -->
 </head>
 
@@ -13,6 +13,8 @@
   <div id="container"></div>
 
   <script>
+    const mouse = new THREE.Vector3();
+    let step = 0;
 
     // Setup renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -22,7 +24,7 @@
     document.getElementById('container').appendChild(renderer.domElement);
 
 
-    // Create trivision colors
+    // Create threevision colors
     const content = [];
     const colorLength = 3;
     for (let i = 0; i < colorLength; i++) {
@@ -31,12 +33,16 @@
 
     content.push("https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg")
 
-    // Create trivision
-    const trivision = new Threevision(content, new THREE.Vector2(window.innerWidth, window.innerHeight));
+    // Create a threevision
+    const threevision = new Threevision();
+    threevision.content = content;
+    threevision.width = window.innerWidth / 2;
+    threevision.height = window.innerHeight / 2;
+    threevision.prismCount = 20;
 
     // Setup scene
     const scene = new THREE.Scene();
-    scene.add(trivision);
+    scene.add(threevision);
     scene.add(new THREE.AmbientLight(0xffffff));
 
     // Setup camera
@@ -44,7 +50,7 @@
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     camera.lookAt(0, 0, 0);
-    camera.position.z = 500;
+    camera.position.z = 480;
 
     // Add camera controls
     // const tbControls = new TrackballControls(camera, renderer.domElement);
@@ -53,11 +59,25 @@
     (function animate() { // IIFE
       // Frame cycle
       // tbControls.update();
-      let sc = {};
-      sc.current = 4;
-      trivision.update(sc);
+      threevision.update(step, mouse, scene, camera);
       renderer.render(scene, camera);
       requestAnimationFrame(animate);
     })();
+
+    function onMouseMove(event) {
+      // calculate mouse position in normalized device coordinates
+      // (-1 to +1) for both components
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+      mouse.z = 0;
+    }
+
+    function onMouseClicked(event) {
+      step++;
+    }
+
+    window.addEventListener('mousemove', onMouseMove, false);
+    window.addEventListener('click', onMouseClicked, false);
+
   </script>
 </body>

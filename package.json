@@ -1,7 +1,7 @@
 {
-  "name": "trivision",
+  "name": "threevision",
   "version": "0.9.0",
-  "description": "A interactive trivision to display your images, built with three.js",
+  "description": "A interactive threevision to display your images, built with three.js",
   "main": "dist/index.js",
   "scripts": {
     "build": "rimraf dist && rollup -c",
@@ -10,11 +10,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/foxinsox/trivision"
+    "url": "https://github.com/foxinsox/threevision"
   },
   "keywords": [
     "npm",
-    "trivision",
+    "threevision",
     "three.js",
     "interactive",
     "image",
