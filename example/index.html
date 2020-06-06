@@ -1,0 +1,63 @@
+<head>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+  <script src="../node_modules/three/build/three.min.js"></script>
+  <script src="../dist/trivision.js"></script>
+  <!-- <script src="../node_modules/three/examples/js/controls/TrackballControls.js"></script> -->
+</head>
+
+<body>
+  <div id="container"></div>
+
+  <script>
+
+    // Setup renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.getElementById('container').appendChild(renderer.domElement);
+
+
+    // Create trivision colors
+    const content = [];
+    const colorLength = 3;
+    for (let i = 0; i < colorLength; i++) {
+      content.push(new THREE.Color(`hsl(${i * 360 / colorLength}, 75%, 50%)`));
+    }
+
+    content.push("https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg")
+
+    // Create trivision
+    const trivision = new Threevision(content, new THREE.Vector2(window.innerWidth, window.innerHeight));
+
+    // Setup scene
+    const scene = new THREE.Scene();
+    scene.add(trivision);
+    scene.add(new THREE.AmbientLight(0xffffff));
+
+    // Setup camera
+    const camera = new THREE.PerspectiveCamera();
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    camera.lookAt(0, 0, 0);
+    camera.position.z = 500;
+
+    // Add camera controls
+    // const tbControls = new TrackballControls(camera, renderer.domElement);
+
+    // Kick-off renderer
+    (function animate() { // IIFE
+      // Frame cycle
+      // tbControls.update();
+      let sc = {};
+      sc.current = 4;
+      trivision.update(sc);
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</body>

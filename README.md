@@ -1,2 +1,2 @@
 # trivision
-An interactive trivision image display.
+An interactive trivision image display for [three.js]("https://threejs.org").

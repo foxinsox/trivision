@@ -2,9 +2,11 @@
   "name": "trivision",
   "version": "0.9.0",
   "description": "A interactive trivision to display your images, built with three.js",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rimraf dist && rollup -c",
+    "dev": "rollup -w -c",
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -22,5 +24,21 @@
     "gallery"
   ],
   "author": "Alexander Pospischil",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-object-rest-spread": "^7.9.5",
+    "@babel/preset-env": "^7.9.5",
+    "@rollup/plugin-commonjs": "^11.1.0",
+    "@rollup/plugin-node-resolve": "^7.1.3",
+    "@types/three": ">=0.86.0",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.6.1",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-terser": "^5.3.0"
+  },
+  "peerDependencies": {
+    "three": ">=0.86.0"
+  }
 }
