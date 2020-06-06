@@ -285,7 +285,6 @@ export default class extends Group {
 
     _getAngleSection(rotation) {
         const angle = rotation % (2 * Math.PI);
-        // console.log(radians_to_degrees(angle));
         if (angle > 5 * Math.PI / 3 || angle <= 1 * Math.PI / 3) return "A";
         if (angle > 1 * Math.PI / 3 && angle <= 3 * Math.PI / 3) return "B";
         if (angle > 3 * Math.PI / 3 && angle <= 5 * Math.PI / 3) return "C";

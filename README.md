@@ -1,2 +1,6 @@
 # threevision
-An interactive threevision image display for [three.js]("https://threejs.org").
+An interactive trivision image display for [three.js]("https://threejs.org").
+
+
+* todo: offer vertical and horizontal prisms
+* todo: make mousepos interaction optional
