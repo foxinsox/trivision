@@ -95,15 +95,15 @@ export default class Prism extends three.Mesh {
     let SW; let SE; let NW; let
       NE;
     if (this._vertical) {
-      SW = new three.Vector2(0, this._index / this._prismCount);
-      SE = new three.Vector2(1, this._index / this._prismCount);
-      NW = new three.Vector2(0, (this._index + 1) / this._prismCount);
-      NE = new three.Vector2(1, (this._index + 1) / this._prismCount);
-    } else {
       SW = new three.Vector2(this._index / this._prismCount, 1);
       SE = new three.Vector2(this._index / this._prismCount, 0);
       NW = new three.Vector2((this._index + 1) / this._prismCount, 1);
       NE = new three.Vector2((this._index + 1) / this._prismCount, 0);
+    } else {
+      SW = new three.Vector2(0, this._index / this._prismCount);
+      SE = new three.Vector2(1, this._index / this._prismCount);
+      NW = new three.Vector2(0, (this._index + 1) / this._prismCount);
+      NE = new three.Vector2(1, (this._index + 1) / this._prismCount);
     }
     const geometry = new three.Geometry();
     geometry.vertices = vertices;
