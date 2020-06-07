@@ -32,13 +32,12 @@ export default class Prism extends three.Mesh {
     super(new three.Geometry(), materials);
     this._step = 0;
     this._motion = 0;
-    this._castShadow = shadows;
-    this._receiveShadow = shadows;
+    this.castShadow = shadows;
+    this.receiveShadow = shadows;
     this._index = index;
     this._prismCount = prismCount;
     this._prismWidth = prismWidth;
     this._prismHeight = prismHeight;
-    this._shadows = shadows;
     this._vertical = vertical;
     this._materials = materials;
     super.geometry = this._calculateGeometry();

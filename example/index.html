@@ -19,6 +19,8 @@
     // Setup renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    const rendererSize = new THREE.Vector2;
+    renderer.getSize(rendererSize);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.getElementById('container').appendChild(renderer.domElement);
@@ -60,20 +62,10 @@
     camera.lookAt(0, 0, 0);
     camera.position.z = 480;
 
-    // Create a threevision
-    const threevision = new Threevision();
-    threevision.materials = materials;
-    threevision.width = window.innerWidth * 0.8;
-    threevision.height = threevision.width; //sq
-    threevision.prismCount = 10;
-    threevision.speed = 10;
-    threevision.mouseOverEffect = true;
-    threevision.shadow = true;
-    threevision.vertical = true;
-    scene.add(threevision);
+
 
     // Optional: Create a light and shadow layer
-    const light = new THREE.SpotLight(0xcccccc);
+    var light = new THREE.SpotLight(0xcccccc);
     light.position.copy(camera.position);
     light.castShadow = true;            // default false
     light.shadow.mapSize.width = 4096;
@@ -83,14 +75,28 @@
     light.position.x -= 50;
     light.position.y += 40;
     scene.add(light);
+
     const planeGeometry = new THREE.PlaneBufferGeometry(innerWidth, innerHeight);
     const planeMaterial = new THREE.ShadowMaterial();
-    planeMaterial.opacity = 0.5;
-    // const planeMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xabcdef) })
+    planeMaterial.opacity = 0.05;
+    // const planeMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xbbbbbb) })
     const plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.position.z = -50;
     plane.receiveShadow = true;
     scene.add(plane);
+
+
+
+    // Create a threevision
+    const threevision = new Threevision();
+    threevision.materials = materials;
+    threevision.width = window.innerWidth * 0.8;
+    threevision.height = threevision.width; //sq
+    threevision.prismCount = 10;
+    threevision.speed = 10;
+    threevision.mouseOverEffect = true;
+    threevision.vertical = true;
+    scene.add(threevision);
 
     // Kick-off renderer
     (function animate() { // IIFE
