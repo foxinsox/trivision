@@ -1,0 +1,23 @@
+{
+    "env": {
+        "browser": true,
+        "es2020": true
+    },
+    "extends": [
+        "airbnb-base"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 11,
+        "sourceType": "module"
+    },
+    "rules": {
+        "max-lines-per-function": [
+            "error",
+            {
+                "max": 30,
+                "skipComments": true,
+                "skipBlankLines": true
+            }
+        ]
+    }
+}

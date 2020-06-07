@@ -4,9 +4,9 @@
       margin: 0;
     }
   </style>
-  <script src="../node_modules/three/build/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r99/three.min.js"></script>
   <script src="../dist/threevision.js"></script>
-  <!-- <script src="../node_modules/three/examples/js/controls/TrackballControls.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
 </head>
 
 <body>
@@ -24,28 +24,26 @@
     document.getElementById('container').appendChild(renderer.domElement);
 
 
-    // Create threevision colors
     const content = [];
-    const colorLength = 1;
-    for (let i = 0; i < colorLength; i++) {
-      content.push(new THREE.Color(`hsl(${i * 360 / colorLength}, 75%, 50%)`));
-    }
 
-    // content.push("https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg")
 
-    // Create a threevision
-    const threevision = new Threevision();
-    threevision.content = content;
-    threevision.width = window.innerWidth / 2;
-    threevision.height = window.innerHeight / 2;
-    threevision.prismCount = 10;
-    threevision.mouseOver = true;
-    threevision.shadow = false;
-    threevision.vertical = true;
+    // Create threevision colors
+    // const colorLength = 4;
+    // for (let i = 0; i < colorLength; i++) {
+    //   content.push(new THREE.Color(`hsl(${i * 360 / colorLength}, 75%, 50%)`));
+    // }
+
+    // Some sweet images by karen arnold for demo
+    // content.push("https://www.publicdomainpictures.net/pictures/260000/velka/tropical-leaves-fruit-background.jpg");
+    // content.push("https://www.publicdomainpictures.net/pictures/290000/velka/bird-vintage-background-1547020715cla.jpg");
+    // content.push("https://www.publicdomainpictures.net/pictures/280000/velka/roses-background-vintage-wallpaper.jpg");
+    content.push("tropical-leaves-fruit-background.jpg");
+    content.push("bird-vintage-background-1547020715cla.jpg");
+    content.push("roses-background-vintage-wallpaper.jpg");
+
 
     // Setup scene
     const scene = new THREE.Scene();
-    scene.add(threevision);
     scene.add(new THREE.AmbientLight(0xffffff));
 
     // Setup camera
@@ -55,14 +53,41 @@
     camera.lookAt(0, 0, 0);
     camera.position.z = 480;
 
-    // Add camera controls
-    // const tbControls = new TrackballControls(camera, renderer.domElement);
+    // Create a threevision
+    const threevision = new Threevision();
+    threevision.content = content;
+    threevision.width = window.innerWidth * 0.8;
+    threevision.height = window.innerHeight * 0.8;
+    threevision.prismCount = 10;
+    threevision.mouseOverEffect = true;
+    threevision.shadow = true;
+    threevision.vertical = true;
+    scene.add(threevision);
+
+    // Optional: Create a light and shadow layer
+    const light = new THREE.SpotLight(0xcccccc);
+    light.position.copy(camera.position);
+    light.castShadow = true;            // default false
+    light.shadow.mapSize.width = 4096;
+    light.shadow.mapSize.height = 4096;
+    light.shadow.camera.near = 0.5;       // default
+    light.shadow.camera.far = 1000
+    light.position.x -= 50;
+    light.position.y += 40;
+    scene.add(light);
+    const planeGeometry = new THREE.PlaneBufferGeometry(innerWidth, innerHeight);
+    const planeMaterial = new THREE.ShadowMaterial();
+    planeMaterial.opacity = 0.5;
+    // const planeMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xabcdef) })
+    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    plane.position.z = -50;
+    plane.receiveShadow = true;
+    scene.add(plane);
 
     // Kick-off renderer
     (function animate() { // IIFE
       // Frame cycle
-      // tbControls.update();
-      threevision.update(step, mouse, scene, camera);
+      threevision.update(step, scene, camera, mouse);
       renderer.render(scene, camera);
       requestAnimationFrame(animate);
     })();

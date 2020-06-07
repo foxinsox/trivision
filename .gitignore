@@ -105,6 +105,3 @@ dist
 
 # VSCode
 .vscode/
-
-# ESLint
-.eslintrc.json
