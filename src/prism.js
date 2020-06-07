@@ -174,7 +174,7 @@ export default class Prism extends three.Mesh {
       // if prism just rotated over into a new angle section: reload new texture in the back
       if (angleSection !== _angleSection) {
         // check direction of rotation based on if deltaRotationZ is positive or negative. if it rotates forward, shift 3 images ahead, if not shift 3 backwards
-        if (deltaRotationZ > 0) {
+        if (deltaRotationZ < 0) {
           this._refreshOnLeftOrUpRotation(angleSection);
         } else {
           this._refreshOnRightOrDownRotation(angleSection);
@@ -187,7 +187,7 @@ export default class Prism extends three.Mesh {
 
   _refreshOnLeftOrUpRotation(angleSection) {
     const indexshift = -3;
-    if (angleSection === 'A') {
+    if (angleSection === 'B') {
       // if (index === 0) console.log('A1: 2,3', `from ${prism.geometry.faces[2].materialIndex} to ${(this._materials.length + (prism.geometry.faces[2].materialIndex + indexshift)) % this._materials.length}`);
       this.geometry.faces[2].materialIndex = (this._materials.length + (this.geometry.faces[2].materialIndex + indexshift)) % this._materials.length;
       this.geometry.faces[3].materialIndex = (this._materials.length + (this.geometry.faces[3].materialIndex + indexshift)) % this._materials.length;
@@ -197,7 +197,7 @@ export default class Prism extends three.Mesh {
       this.geometry.faces[4].materialIndex = (this._materials.length + (this.geometry.faces[4].materialIndex + indexshift)) % this._materials.length;
       this.geometry.faces[5].materialIndex = (this._materials.length + (this.geometry.faces[5].materialIndex + indexshift)) % this._materials.length;
     }
-    if (angleSection === 'B') {
+    if (angleSection === 'A') {
       // if (index === 0) console.log('B1: 6,7 ', `from ${prism.geometry.faces[6].materialIndex} to ${(this._materials.length + (prism.geometry.faces[6].materialIndex + indexshift)) % this._materials.length}`);
       this.geometry.faces[6].materialIndex = (this._materials.length + (this.geometry.faces[6].materialIndex + indexshift)) % this._materials.length;
       this.geometry.faces[7].materialIndex = (this._materials.length + (this.geometry.faces[7].materialIndex + indexshift)) % this._materials.length;
@@ -206,17 +206,17 @@ export default class Prism extends three.Mesh {
 
   _refreshOnRightOrDownRotation(angleSection) {
     const indexshift = 3;
-    if (angleSection === 'B') {
+    if (angleSection === 'A') {
       // if (index === 0) console.log('B2: 2,3 ', `from ${prism.geometry.faces[2].materialIndex} to ${(prism.geometry.faces[2].materialIndex + 3) % this._materials.length}`);
       this.geometry.faces[2].materialIndex = (this._materials.length + (this.geometry.faces[2].materialIndex + indexshift)) % this._materials.length;
       this.geometry.faces[3].materialIndex = (this._materials.length + (this.geometry.faces[3].materialIndex + indexshift)) % this._materials.length;
     }
-    if (angleSection === 'C') {
+    if (angleSection === 'B') {
       // if (index === 0) console.log('C2: 4,5 ', `from ${prism.geometry.faces[4].materialIndex} to ${(prism.geometry.faces[4].materialIndex + 3) % this._materials.length}`);
       this.geometry.faces[4].materialIndex = (this._materials.length + (this.geometry.faces[4].materialIndex + indexshift)) % this._materials.length;
       this.geometry.faces[5].materialIndex = (this._materials.length + (this.geometry.faces[5].materialIndex + indexshift)) % this._materials.length;
     }
-    if (angleSection === 'A') {
+    if (angleSection === 'C') {
       // if (index === 0) console.log('A2: 6,7 ', `from ${prism.geometry.faces[6].materialIndex} to ${(prism.geometry.faces[6].materialIndex + 3) % this._materials.length}`);
       this.geometry.faces[6].materialIndex = (this._materials.length + (this.geometry.faces[6].materialIndex + indexshift)) % this._materials.length;
       this.geometry.faces[7].materialIndex = (this._materials.length + (this.geometry.faces[7].materialIndex + indexshift)) % this._materials.length;
