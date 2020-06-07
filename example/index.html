@@ -28,18 +28,26 @@
 
 
     // Create threevision colors
-    // const colorLength = 4;
-    // for (let i = 0; i < colorLength; i++) {
-    //   content.push(new THREE.Color(`hsl(${i * 360 / colorLength}, 75%, 50%)`));
-    // }
+    // let's generate a nice color scheme:
+    axios.get('http://thecolorapi.com/scheme?hex=0047AB&rgb=0,71,171&hsl=215,100%,34%&cmyk=100,58,0,33&format=html&mode=analogic&count=6', {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      }
+    })
+      .then((response) => {
+        console.log(response);
+      }, (error) => {
+        //if something went wrong, let's just generate random colors
+        for (let i = 0; i < 10; i++) {
+          content.push(new THREE.Color(`hsl(${i * 360 / colorLength}, 75%, 50%)`));
+        }
+      });
+
 
     // Some sweet images by karen arnold for demo
-    // content.push("https://www.publicdomainpictures.net/pictures/260000/velka/tropical-leaves-fruit-background.jpg");
-    // content.push("https://www.publicdomainpictures.net/pictures/290000/velka/bird-vintage-background-1547020715cla.jpg");
-    // content.push("https://www.publicdomainpictures.net/pictures/280000/velka/roses-background-vintage-wallpaper.jpg");
-    content.push("tropical-leaves-fruit-background.jpg");
-    content.push("bird-vintage-background-1547020715cla.jpg");
-    content.push("roses-background-vintage-wallpaper.jpg");
+    content.push("https://foxinsox.github.io/threevision/example/tropical-leaves-fruit-background_1024.jpg");
+    content.push("https://foxinsox.github.io/threevision/example/bird-vintage-background-1547020715cla_1024.jpg");
+    content.push("https://foxinsox.github.io/threevision/example/roses-background-vintage-wallpaper_1024.jpg");
 
 
     // Setup scene
@@ -57,7 +65,7 @@
     const threevision = new Threevision();
     threevision.content = content;
     threevision.width = window.innerWidth * 0.8;
-    threevision.height = window.innerHeight * 0.8;
+    threevision.height = threevision.width; //sq
     threevision.prismCount = 10;
     threevision.mouseOverEffect = true;
     threevision.shadow = true;
