@@ -22,7 +22,7 @@ var Threevision = require('threevision');
 ```
 or even
 ```
-<script src="//unpkg.com/threevision"></script>
+<script src="https://unpkg.com/threevision"></script>
 ```
 then
 ```
