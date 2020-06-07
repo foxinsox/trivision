@@ -61,28 +61,29 @@ myScene.add(threevision);
 
 ### Properties
 
-| Property               | Description                                                                                                                   | Default |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- | :-----: |
-| <b>materials</b>       | Array with containing Three.js textures. This is what will be displayed. See the example for how to display images or colors. |         |
-| <b>width</b>           | The width of the threevision display.                                                                                         |  `100`  |
-| <b>height</b>          | The height of the threevision display.                                                                                        |  `100`  |
+| Property         | Description                                                                                                                   | Default |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------- | :-----: |
+| <b>materials</b> | Array with containing Three.js textures. This is what will be displayed. See the example for how to display images or colors. |         |
+| <b>width</b>     | The width of the threevision display.                                                                                         |  `100`  |
+| <b>height</b>    | The height of the threevision display.                                                                                        |  `100`  |
+| <b>step</b>      | Index of the material to be facing frontwards. Changing step will cause the threevision display to rotate.                    |    `0`    |
+
 | <b>prismCount</b>      | The amount of prism elements of the threevision display.                                                                      |  `24`   |
 | <b>vertical</b>        | The orientation of the prisms.                                                                                                | `false` |
 | <b>easing</b>          | The easing of the prisms rotation.                                                                                            | `0.05`  |
 | <b>speed</b>           | The speed of the prisms rotation.                                                                                             |   `4`   |
-| <b>mouseOverEffect</b> | Applies a mouse-over effect for enhanced interactivity.                                                                       | `false` |
+| <b>mouseOverEffect</b> | Applies a mouse-over effect that puts the prisms in unchoreographed disorder.                                                 | `false` |
 | <b>shadows</b>         | If the THREE.Scene is prepared for shadows, the threevision displays shadow behavior can be manually switched on/off.         | `true`  |
 
 ### Animation update
 
-<b>threevision.update</b>([<i>step</i>,<i>scene</i>,<i>camera</i>,<i>mousePos</i>])`
+<b>threevision.update</b>([<i>scene</i>,<i>camera</i>,<i>mousePos</i>])`
 
-| Property        | Description                                                                                                        |     Type      |
-| --------------- | ------------------------------------------------------------------------------------------------------------------ | :-----------: |
-| <b>step</b>     | Index of the material to be facing frontwards. Changing step will cause the threevision display to start rotating. |    Integer    |
-| <b>scene</b>    | The main scene. Required only if <b>mouseOverEffect</b> is set to `true`.                                          |  THREE.Scene  |
-| <b>camera</b>   | The main camera. Required only if <b>mouseOverEffect</b> is set to `true`.                                         | THREE.Camera  |
-| <b>mousePos</b> | The current mouse position. Required only if <b>mouseOverEffect</b> is set to `true`.                              | THREE.Vector2 |
+| Property        | Description                                                                           |     Type      |
+| --------------- | ------------------------------------------------------------------------------------- | :-----------: |
+| <b>scene</b>    | The main scene. Required only if <b>mouseOverEffect</b> is set to `true`.             |  `THREE.Scene`  |
+| <b>camera</b>   | The main camera. Required only if <b>mouseOverEffect</b> is set to `true`.            | `THREE.Camera`  |
+| <b>mousePos</b> | The current mouse position. Required only if <b>mouseOverEffect</b> is set to `true`. | `THREE.Vector2` |
 
 
 

@@ -6,13 +6,14 @@
   </style>
   <script src="https://unpkg.com/three"></script>
   <script src="https://unpkg.com/threevision"></script>
+  <!-- <script src="../dist/threevision.min.js"></script> -->
   <script src='https://unpkg.com/dat.gui'></script>
 </head>
 
 <body>
   <p
     style="text-align: center;vertical-align: middle;padding-top:2rem;font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;font-size: large;">
-    Click!</p>
+    Click to shift and align!</p>
   <div id="container"></div>
 
   <script>
@@ -151,7 +152,7 @@
     // Kick-off renderer
     (function animate() { // IIFE
       // Frame cycle
-      threevision.update(step, scene, camera, mouse);
+      threevision.update(scene, camera, mouse);
       renderer.render(scene, camera);
       requestAnimationFrame(animate);
     })();
@@ -166,6 +167,7 @@
 
     function onMouseClicked(event) {
       step++;
+      threevision.step = step;
     }
 
     function shuffle(array) {

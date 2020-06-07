@@ -23,11 +23,12 @@ const three = window.THREE
 
 
 export default class extends three.Group {
-  constructor(materials, width, height) {
+  constructor(materials, width = 100, height = 100) {
     super();
     this._materials = materials;
     this._width = width;
     this._height = height;
+    this._step = 0;
     this._easing = 0.05;
     this._prismCount = 24;
     this._speed = 4;
@@ -55,6 +56,10 @@ export default class extends three.Group {
   set height(height) { this._height = height; this._init(); }
 
   get height() { return this._height; }
+
+  set step(step) { this._step = step; }
+
+  get step() { return this._step; }
 
   set easing(easing) { this._easing = easing; }
 
@@ -130,15 +135,16 @@ export default class extends three.Group {
     this._previousMousePos = currentMousePos;
   }
 
-  _updatePrismsStep(step) {
+  _updatePrismsStep() {
     // set new step rotation
-    if (step !== this._previousStep) {
+    console.log(this._step);
+    if (this._step !== this._previousStep) {
       this.children.map((p) => {
         const prism = p;
-        prism.step = step;
+        prism.step = this._step;
         return prism;
       });
-      this._previousStep = step;
+      this._previousStep = this._step;
       this._readyToRefresh = true;
     }
   }
@@ -158,12 +164,11 @@ export default class extends three.Group {
   }
 
   // animation updates
-  update(step, scene, camera, mousePos) {
+  update(scene, camera, mousePos) {
     if (mousePos && scene && camera && this.mouseOverEffect) {
       this._applyMouseOverEffect(scene, camera, mousePos);
     }
-
-    this._updatePrismsStep(step);
+    this._updatePrismsStep();
     this._updatePrismsRotation();
   }
 }
