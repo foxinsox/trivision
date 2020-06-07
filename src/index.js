@@ -23,21 +23,17 @@ const three = window.THREE
 
 
 export default class extends three.Group {
-  constructor(materials, width, height, vertical = false, easing = 0.05, prismCount = 24, speed = 4, shadows = true, mouseOverEffect = false) {
+  constructor(materials, width, height) {
     super();
-    // init class fields
-
-    // array containing image paths/urls or THREE.Color objects.
-    // this array can contain different types!
     this._materials = materials;
     this._width = width;
     this._height = height;
-    this._easing = easing;
-    this._prismCount = prismCount;
-    this._speed = speed;
-    this._shadows = shadows;
-    this._vertical = vertical;
-    this._mouseOverEffect = mouseOverEffect;
+    this._easing = 0.05;
+    this._prismCount = 24;
+    this._speed = 4;
+    this._shadows = true;
+    this._vertical = false;
+    this._mouseOverEffect = false;
     this._readyToRefresh = false;
     this._clock = new three.Clock();
     this._previousStep = 0;
