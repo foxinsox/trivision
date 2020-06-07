@@ -10,6 +10,9 @@
 </head>
 
 <body>
+  <p
+    style="text-align: center;vertical-align: middle;padding-top:2rem;font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;font-size: large;">
+    Click!</p>
   <div id="container"></div>
 
   <script>
@@ -26,20 +29,23 @@
     document.getElementById('container').appendChild(renderer.domElement);
 
 
-    // Prepare some sweet images by karen arnold
+    // Prepare some nice images as textures
     const images = [];
     images.push("https://foxinsox.github.io/threevision/example/tropical-leaves-fruit-background_1024.jpg");
     images.push("https://foxinsox.github.io/threevision/example/bird-vintage-background-1547020715cla_1024.jpg");
-    images.push("https://foxinsox.github.io/threevision/example/roses-background-vintage-wallpaper_1024.jpg");
+    images.push("https://foxinsox.github.io/threevision/example/color-4057072_1024.jpg");
+    images.push("https://foxinsox.github.io/threevision/example/flowers-pattern-design-illustration_1024.jpg");
+    images.push("https://foxinsox.github.io/threevision/example/illustration-3270278_1024.jpg");
+    images.push("https://foxinsox.github.io/threevision/example/illustration-4643567_1024.jpg");
 
-    // Prepare some random colors
+    // Prepare some random colors as textures
     const colors = [];
     const colorsCount = 10
     for (let i = 0; i < colorsCount; i++) {
       colors.push(new THREE.Color(`hsl(${i * 360 / colorsCount}, 75%, 50%)`));
     }
 
-    // Lets create the textures from images and colors
+    // Lets create the actual textures from images and colors
     const materials = [];
     images.forEach((el) => {
       const texture = new THREE.TextureLoader().load(el);
@@ -90,9 +96,10 @@
     // Create a threevision
     const threevision = new Threevision();
     threevision.materials = materials;
-    threevision.height = window.innerHeight * 0.8;
+    threevision.height = Math.min(window.innerHeight, window.innerWidth) * 0.8;
     threevision.width = threevision.height; //make it square
     threevision.mouseOverEffect = true;
+    threevision.position.y = threevision.height / 10;
     scene.add(threevision);
 
 
@@ -141,13 +148,13 @@
 
 
 
-      // Kick-off renderer
-      (function animate() { // IIFE
-        // Frame cycle
-        threevision.update(step, scene, camera, mouse);
-        renderer.render(scene, camera);
-        requestAnimationFrame(animate);
-      })();
+    // Kick-off renderer
+    (function animate() { // IIFE
+      // Frame cycle
+      threevision.update(step, scene, camera, mouse);
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    })();
 
     function onMouseMove(event) {
       // calculate mouse position in normalized device coordinates
