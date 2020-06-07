@@ -6,7 +6,6 @@ A optimized react package will follow soon.
 
 * todo: fix documentation in code
 * three.js tips and best practices / checklist
-* todo: fix shadows
 * todo: fix imports of example after hosted on npm
 * add gui to demo
 * add tests

@@ -72,8 +72,8 @@
     light.shadow.mapSize.height = 4096;
     light.shadow.camera.near = 0.5;       // default
     light.shadow.camera.far = 1000
-    light.position.x -= 50;
-    light.position.y += 40;
+    light.position.x -= 80;
+    light.position.y += 100;
     scene.add(light);
 
     const planeGeometry = new THREE.PlaneBufferGeometry(innerWidth, innerHeight);
@@ -90,8 +90,8 @@
     // Create a threevision
     const threevision = new Threevision();
     threevision.materials = materials;
-    threevision.width = window.innerWidth * 0.8;
-    threevision.height = threevision.width; //sq
+    threevision.height = window.innerHeight * 0.8;
+    threevision.width = threevision.height; //make it square
     threevision.prismCount = 10;
     threevision.speed = 10;
     threevision.mouseOverEffect = true;
