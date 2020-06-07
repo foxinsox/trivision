@@ -1,9 +1,6 @@
 # threevision
 An interactive trivision image display for [three.js]("https://threejs.org").
 
-
-* todo: offer vertical and horizontal prisms
-* todo: fix steps
-* todo: make mousepos interaction optional
-* todo: clean up
+* todo: clean up and fix documentation in code
+* todo: fix materials[] swap on rotations
 * add tests

@@ -26,12 +26,12 @@
 
     // Create threevision colors
     const content = [];
-    const colorLength = 3;
+    const colorLength = 10;
     for (let i = 0; i < colorLength; i++) {
       content.push(new THREE.Color(`hsl(${i * 360 / colorLength}, 75%, 50%)`));
     }
 
-    content.push("https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg")
+    // content.push("https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg")
 
     // Create a threevision
     const threevision = new Threevision();
@@ -39,7 +39,8 @@
     threevision.width = window.innerWidth / 2;
     threevision.height = window.innerHeight / 2;
     threevision.prismCount = 10;
-    // threevision.horizontal = true;
+    threevision.mouseOver = true;
+    // threevision.vertical = true;
 
     // Setup scene
     const scene = new THREE.Scene();

@@ -1,314 +1,240 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable linebreak-style */
 import {
-    Mesh,
-    TextureLoader,
-    MeshBasicMaterial,
-    Geometry,
-    Vector3,
-    Vector2,
-    Face3,
-    Group,
-    Clock
+  TextureLoader,
+  MeshBasicMaterial,
+  Vector3,
+  Group,
+  Clock,
+  Raycaster,
 } from 'three';
+import Prism from './prism';
 
 const three = window.THREE
-    ? window.THREE // Prefer consumption from global THREE, if exists
-    : {
-        Mesh,
-        TextureLoader,
-        MeshBasicMaterial,
-        Geometry,
-        Vector3,
-        Vector2,
-        Face3,
-        Group,
-        Clock
-    };
+  ? window.THREE // Prefer consumption from global THREE, if exists
+  : {
+    TextureLoader,
+    MeshBasicMaterial,
+    Vector3,
+    Group,
+    Clock,
+    Raycaster,
+  };
 
 
-class Prism extends Mesh {
-    constructor(index, prismCount, materials, prismWidth, prismHeight, shadows, horizontal) {
-        const geometry = new Geometry();
-        super(geometry, materials);
-        this._step = 0;
-        this.castShadow = shadows;
-        this.receiveShadow = shadows;
-        this.geometry = this._calculateGeometry(index, prismCount, prismWidth, prismHeight, horizontal);
+export default class extends three.Group {
+  constructor(content, width, height, vertical = false, easing = 0.05, prismCount = 24, speed = 4, shadows = true, mouseOver = false) {
+    super();
+    // init class fields
+
+    // array containing image paths/urls or THREE.Color objects.
+    // this array can contain different types!
+    this._content = content;
+    this._width = width;
+    this._height = height;
+    this._easing = easing;
+    this._prismCount = prismCount;
+    this._speed = speed;
+    this._shadows = shadows;
+    this._vertical = vertical;
+    this._mouseOver = mouseOver;
+    this._RADIANS_PER_STEP = 2 * (Math.PI / 3); // since this is a triangle shaped prism, it's always 120deg until next position
+
+    if (content) this._init();
+  }
+
+  // Getters & Setters
+  set content(content) { this._content = content; }
+
+  get content() { return this._content; }
+
+  set width(width) { this._width = width; this._init(); }
+
+  get width() { return this._width; }
+
+  set height(height) { this._height = height; this._init(); }
+
+  get height() { return this._height; }
+
+  set easing(easing) { this._easing = easing; }
+
+  get easing() { return this._easing; }
+
+  set prismCount(prismCount) { this._prismCount = prismCount; this._init(); }
+
+  get prismCount() { return this._prismCount; }
+
+  set speed(speed) { this._speed = speed; }
+
+  get speed() { return this._speed; }
+
+  set shadows(shadows) { this._shadows = shadows; }
+
+  get shadows() { return this._shadows; }
+
+  set vertical(vertical) { this._vertical = vertical; this._init(); }
+
+  get vertical() { return this._vertical; }
+
+  set mouseOver(mouseOver) { this._mouseOver = mouseOver; }
+
+  get mouseOver() { return this._mouseOver; }
+
+  _init() {
+    // if re-initialization: remove old threevision from scene before creating a new one
+    if (this.children) {
+      this.children = [];
     }
-    get step() { return this._step; };
-    set step(step) { this._step = step; };
 
-    _calculateGeometry(index, prismCount, prismWidth, prismHeight, horizontal) {
-        /**
-        *         2C                   5F
-        *        /\                  /\
-        *       /  \1B______________/__\4E
-        *    0A/_________________3D/
-        */
+    // prepare mesh materials
+    this.materials = [];
+    this.content.forEach((el) => {
+      if (typeof (el) === 'string') {
+        const texture = new three.TextureLoader().load(el);
+        this.materials.push(new three.MeshBasicMaterial({ map: texture }));
+      }
+      if (typeof (el) === 'object') {
+        this.materials.push(new three.MeshBasicMaterial({ color: el }));
+      }
+    });
 
-        //calculate equilateral triangle coordinates for two triangles (3D)
+    let prismWidth = this.width * 0.5;
+    let prismHeight = (this.height * 0.5) / this.prismCount;
+    if (this.vertical) {
+      prismWidth = this.height * 0.5;
+      prismHeight = (this.width * 0.5) / this.prismCount;
+    }
+
+    for (let index = 0; index < this.prismCount; index += 1) {
+      const prism = new Prism(index, this.prismCount, this.materials, prismWidth, prismHeight, this.shadows, this.vertical);
+      // arrange position for threevision structure
+      prism.rotation.y += Math.PI / 2;
+      prism.position.y -= ((this.prismCount / 2) * prismHeight) - prismHeight / 2;
+      prism.position.y += index * prismHeight;
+      this.add(prism);
+    }
+    if (this.vertical) {
+      this.rotation.z += Math.PI / 2;
+    }
+    this.readyToRefresh = false;
+
+    // array that contains all prism rotationsZ from previous animation frame
+    this.prev_rotation = [];
+    this.clock = new three.Clock();
+    this.previousStep = 0;
+    this.prev_mouse = new three.Vector3(0, 0, 0);
+    this.raycaster = new three.Raycaster();
+  }
+
+  // animation updates
+  update(step, mouse, scene, camera) {
+    if (mouse && scene && camera && this.mouseOver) {
+      const currentMousePos = new three.Vector3(mouse.x, mouse.y, mouse.z);
+      const deltaMousePos = new three.Vector3().subVectors(this.prev_mouse, currentMousePos);
+
+      let delta;
+      if (this.vertical) delta = deltaMousePos.x;
+      else delta = deltaMousePos.y;
+      if (!this.readyToRefresh && delta !== 0) {
+        // update the picking ray with the camera and mouse position
+        this.raycaster.setFromCamera(mouse, camera);
+        // calculate objects intersecting the picking ray
+        const intersects = this.raycaster.intersectObjects(scene.children.filter((obj) => obj.type === 'Group'), true);
+        for (let i = 0; i < intersects.length; i += 1) {
+          const { uuid } = intersects[i].object;
+          const prism = this.children.find((obj) => obj.uuid === uuid);
+          if (prism) {
+            prism.step += delta * 10;
+          }
+        }
+      }
+      this.prev_mouse = currentMousePos;
+    }
+
+    const deltaMousePos = this.clock.getDelta();
+    const stp = this.speed * deltaMousePos;
 
 
-        const vertices = [], parts = 3, triangleAmount = 2
-        const triangleRadius = prismHeight * Math.sqrt(3) / 3;
-        for (let j = 0; j < triangleAmount; j++) {
-            for (let i = 0; i < parts; i++) {
-                const a = 2 * i / parts * Math.PI;
-                const v = new Vector3(Math.cos(a) * triangleRadius, Math.sin(a) * triangleRadius, (j * prismWidth) - (prismWidth / 2));
-                vertices.push(v);
+    // on mouse clicked: set new step rotation
+    const currentStep = step;
+    if (currentStep !== this.previousStep) {
+      this.children.map((p) => {
+        const prism = p;
+        prism.step = currentStep;
+        return prism;
+      });
+      this.previousStep = currentStep;
+      this.readyToRefresh = true;
+    }
+
+    // if mouse clicked: get prism.step and make all other prisms also flip to the same step, so that it displays an entire image again
+    let totalMovement = 0;
+    this.children.map((p, index) => {
+      const prism = p;
+      const dz = prism.rotation.z - Math.round(prism.step) * this._RADIANS_PER_STEP;
+      totalMovement += Math.abs(Math.min(dz * this.easing, stp));
+      prism.rotation.z -= Math.min(dz * this.easing, stp);
+
+
+      // 1) if previous rot exists and if previous rot was in different angle segment than current: change texture
+      if (this.prev_rotation[index]) {
+        const angleSection = this.constructor._getAngleSection(prism.rotation.z);
+        const _angleSection = this.constructor._getAngleSection(this.prev_rotation[index]);
+
+        // if prism just rotated over into a new angle section: reload new texture in the back
+        if (angleSection !== _angleSection) {
+          // check direction of rotation based on if dz is positive or negative. if it rotates forward, shift 3 images ahead, if not shift 3 backwards
+          let indexshift = 3;
+          if (dz > 0) {
+            indexshift = -3;
+            if (angleSection === 'B') {
+              console.log('B1: 2,3', `from ${prism.geometry.faces[2].materialIndex} to ${(this.materials.length + (prism.geometry.faces[2].materialIndex + indexshift)) % this.materials.length}`);
+              prism.geometry.faces[2].materialIndex = (this.materials.length + (prism.geometry.faces[2].materialIndex + indexshift)) % this.materials.length;
+              prism.geometry.faces[3].materialIndex = (this.materials.length + (prism.geometry.faces[3].materialIndex + indexshift)) % this.materials.length;
             }
-        }
-
-
-        const BAC = new Face3(1, 0, 2);
-        const EDF = new Face3(3, 4, 5);
-        const ADC = new Face3(0, 3, 2);
-        const CDF = new Face3(2, 3, 5);
-        const CFB = new Face3(2, 5, 1);
-        const BFE = new Face3(1, 5, 4);
-        const BEA = new Face3(1, 4, 0);
-        const AED = new Face3(0, 4, 3);
-
-        /**
-         *   NW ------- NE
-         *   |          |
-         *   |          |
-         *   |          |
-         *   SW ------ SE
-         */
-
-
-        // const SW = new Vector2(0, 0);
-        // const SE = new Vector2(0, 1);
-        // const NW = new Vector2(1, 0);
-        // const NE = new Vector2(1, 1);
-
-        let SW, SE, NW, NE;
-        if (horizontal) {
-            SW = new Vector2(0, index / prismCount);
-            SE = new Vector2(1, index / prismCount);
-            NW = new Vector2(0, (index + 1) / prismCount);
-            NE = new Vector2(1, (index + 1) / prismCount);
-        } else {
-            SW = new Vector2(index / prismCount, 1);
-            SE = new Vector2(index / prismCount, 0);
-            NW = new Vector2((index + 1) / prismCount, 1);
-            NE = new Vector2((index + 1) / prismCount, 0);
-        }
-        const geometry = new Geometry();
-        geometry.vertices = vertices;
-        geometry.faces = [BAC, EDF, ADC, CDF, CFB, BFE, BEA, AED];
-        geometry.computeFaceNormals();
-
-        //sideLeft
-        geometry.faceVertexUvs[0].push([SW, NW, SE]);
-        //sideRight
-        geometry.faceVertexUvs[0].push([SW, NW, SE]);
-        //front3
-        geometry.faceVertexUvs[0].push([SW, SE, NW]);
-        geometry.faceVertexUvs[0].push([NW, SE, NE]);
-        //front1
-        geometry.faceVertexUvs[0].push([SW, SE, NW]);
-        geometry.faceVertexUvs[0].push([NW, SE, NE]);
-        //front2
-        geometry.faceVertexUvs[0].push([SW, SE, NW]);
-        geometry.faceVertexUvs[0].push([NW, SE, NE]);
-
-        geometry.computeVertexNormals();
-        geometry.faces[2].materialIndex = 2;
-        geometry.faces[3].materialIndex = 2;
-        geometry.faces[4].materialIndex = 0;
-        geometry.faces[5].materialIndex = 0;
-        geometry.faces[6].materialIndex = 1;
-        geometry.faces[7].materialIndex = 1;
-
-        return geometry;
-    }
-}
-
-export default class extends Group {
-    constructor(content, width, height, horizontal = false, easing = 0.05, prismCount = 24, speed = 4, shadows = true) {
-        super();
-        //init class fields
-        this._content = content;   //array containing image paths/urls or THREE.Color objects. this array can contain different types!
-        this._width = width;
-        this._height = height;
-        this._easing = easing;
-        this._prismCount = prismCount;
-        this._speed = speed;
-        this._shadows = shadows;
-        this._horizontal = horizontal;
-        if (content) this._init();
-    }
-
-    //Getters & Setters
-    set content(content) { this._content = content; };
-    get content() { return this._content; };
-    set width(width) { this._width = width; this._init(); };
-    get width() { return this._width; };
-    set height(height) { this._height = height; this._init(); };
-    get height() { return this._height; };
-    set easing(easing) { this._easing = easing; };
-    get easing() { return this._easing; };
-    set prismCount(prismCount) { this._prismCount = prismCount; this._init(); };
-    get prismCount() { return this._prismCount; };
-    set speed(speed) { this._speed = speed; };
-    get speed() { return this._speed; };
-    set shadows(shadows) { this._shadows = shadows; };
-    get shadows() { return this._shadows; };
-    set horizontal(horizontal) { this._horizontal = horizontal; this._init() };
-    get horizontal() { return this._horizontal; };
-
-    _init() {
-
-        //if re-initialization: remove old threevision from scene before creating a new one
-        if (this.children) {
-            this.children = [];
-        }
-
-        //prepare mesh materials
-        this.materials = [];
-        this.content.map(el => {
-            if (typeof (el) === "string") {
-                const texture = new TextureLoader().load(el);
-                this.materials.push(new MeshBasicMaterial({ map: texture }));
+            if (angleSection === 'C') {
+              console.log('C1: 4,5 ', `from ${prism.geometry.faces[4].materialIndex} to ${(this.materials.length + (prism.geometry.faces[4].materialIndex + indexshift)) % this.materials.length}`);
+              prism.geometry.faces[4].materialIndex = (this.materials.length + (prism.geometry.faces[4].materialIndex + indexshift)) % this.materials.length;
+              prism.geometry.faces[5].materialIndex = (this.materials.length + (prism.geometry.faces[5].materialIndex + indexshift)) % this.materials.length;
             }
-            if (typeof (el) === "object") {
-                this.materials.push(new MeshBasicMaterial({ color: el }));
+            if (angleSection === 'A') {
+              console.log('A1: 6,7 ', `from ${prism.geometry.faces[6].materialIndex} to ${(this.materials.length + (prism.geometry.faces[6].materialIndex + indexshift)) % this.materials.length}`);
+              prism.geometry.faces[6].materialIndex = (this.materials.length + (prism.geometry.faces[6].materialIndex + indexshift)) % this.materials.length;
+              prism.geometry.faces[7].materialIndex = (this.materials.length + (prism.geometry.faces[7].materialIndex + indexshift)) % this.materials.length;
             }
-        })
-
-        let prismWidth, prismHeight;
-        if (this.horizontal) {
-            prismWidth = this.width * 0.5;
-            prismHeight = this.height * 0.5 / this.prismCount;
-        } else {
-            prismWidth = this.height * 0.5;
-            prismHeight = this.width * 0.5 / this.prismCount;
-        }
-
-        for (let index = 0; index < this.prismCount; index++) {
-            const prism = new Prism(index, this.prismCount, this.materials, prismWidth, prismHeight, this.shadows, this.horizontal);
-            //arrange position for threevision structure
-            prism.rotation.y += Math.PI / 2;
-            prism.position.y -= (this.prismCount / 2 * prismHeight) - prismHeight / 2;
-            prism.position.y += index * prismHeight;
-            this.add(prism);
-        }
-        if (!this.horizontal) {
-            this.rotation.z += Math.PI / 2;
-        }
-        this.readyToRefresh = false;
-
-        //array that contains all prism rotationsZ from previous animation frame
-        this.prev_rotation = [];
-        this.clock = new Clock();
-        this.prev_step = 0;
-        this.prev_mouse = new Vector3(0, 0, 0);
-        this.raycaster = new THREE.Raycaster();
-    }
-
-    //animation updates
-    update(step, mouse, scene, camera) {
-        if (mouse && scene && camera) {
-            const cur_mouse = new Vector3(mouse.x, mouse.y, mouse.z);
-            const delta_mouse = new Vector3().subVectors(this.prev_mouse, cur_mouse);
-
-            let delta;
-            if (this.horizontal) delta = delta_mouse.y;
-            else delta = delta_mouse.x;
-            if (!this.readyToRefresh && delta !== 0) {
-                // update the picking ray with the camera and mouse position
-                this.raycaster.setFromCamera(mouse, camera);
-                // calculate objects intersecting the picking ray
-                const intersects = this.raycaster.intersectObjects(scene.children.filter(obj => obj.type === "Group"), true);
-                for (let i = 0; i < intersects.length; i++) {
-                    const uuid = intersects[i].object.uuid;
-                    const prism = this.children.find(prism => prism.uuid === uuid);
-                    if (prism) {
-                        prism.step += delta * 10;
-                    }
-                }
+          } else {
+            if (angleSection === 'A') {
+              console.log('A2: 2,3 ', `from ${prism.geometry.faces[2].materialIndex} to ${(prism.geometry.faces[2].materialIndex + 3) % this.materials.length}`);
+              prism.geometry.faces[2].materialIndex = (this.materials.length + (prism.geometry.faces[2].materialIndex + indexshift)) % this.materials.length;
+              prism.geometry.faces[3].materialIndex = (this.materials.length + (prism.geometry.faces[3].materialIndex + indexshift)) % this.materials.length;
             }
-            this.prev_mouse = cur_mouse;
-        }
-
-        const delta_mouse = this.clock.getDelta();
-        const stp = this.speed * delta_mouse;
-
-
-        //on mouse clicked: set new step rotation
-        const cur_step = step;
-        if (cur_step != this.prev_step) {
-            this.children.map(prism => prism.step = cur_step);
-            this.prev_step = cur_step;
-            this.readyToRefresh = true;
-        }
-        const radians_per_step = 2 * Math.PI / 3;  //since this is a triangle shaped prism, it's always 120deg until next position
-
-        //if mouse clicked: get prism.step and make all other prisms also flip to the same step, so that it displays an entire image again
-
-        let totalMovement = 0;
-        this.children.map((prism, index) => {
-            const dz = prism.rotation.z - Math.round(prism.step) * radians_per_step;
-            totalMovement += Math.abs(Math.min(dz * this.easing, stp));
-            prism.rotation.z -= Math.min(dz * this.easing, stp);
-            //1) if previous rot exists and if previous rot was in different angle segment than current: change texture
-            if (this.prev_rotation[index]) {
-                const angleSection = this._getAngleSection(prism.rotation.z);
-                const _angleSection = this._getAngleSection(this.prev_rotation[index]);
-                //if prism just rotated over into a new angle section: reload new texture in the back
-                if (angleSection !== _angleSection) {
-                    //check direction of rotation based on if dz is positive or negative. if it rotates forward, shift 3 images ahead, if not shift 3 backwards
-                    let indexshift = 3
-                    if (dz < 0) {
-                        indexshift = -3
-                        if (angleSection === "B") {
-                            // console.log("C: ", `from ${prism.geometry.faces[2].materialIndex} to ${(prism.geometry.faces[2].materialIndex + 3) % materials.length}`)
-                            prism.geometry.faces[2].materialIndex = (this.materials.length + (prism.geometry.faces[2].materialIndex + indexshift)) % this.materials.length;
-                            prism.geometry.faces[3].materialIndex = (this.materials.length + (prism.geometry.faces[3].materialIndex + indexshift)) % this.materials.length;
-                        }
-                        if (angleSection === "C") {
-                            // console.log("A: ", `from ${prism.geometry.faces[4].materialIndex} to ${(prism.geometry.faces[4].materialIndex + 3) % this.materials.length}`)
-                            prism.geometry.faces[4].materialIndex = (this.materials.length + (prism.geometry.faces[4].materialIndex + indexshift)) % this.materials.length;
-                            prism.geometry.faces[5].materialIndex = (this.materials.length + (prism.geometry.faces[5].materialIndex + indexshift)) % this.materials.length;
-                        }
-                        if (angleSection === "A") {
-                            // console.log("B: ", `from ${prism.geometry.faces[6].materialIndex} to ${(prism.geometry.faces[6].materialIndex + 3) % this.materials.length}`)
-                            prism.geometry.faces[6].materialIndex = (this.materials.length + (prism.geometry.faces[6].materialIndex + indexshift)) % this.materials.length;
-                            prism.geometry.faces[7].materialIndex = (this.materials.length + (prism.geometry.faces[7].materialIndex + indexshift)) % this.materials.length;
-                        }
-                    } else {
-                        if (angleSection === "A") {
-                            // console.log("C: ", `from ${prism.geometry.faces[2].materialIndex} to ${(prism.geometry.faces[2].materialIndex + 3) % this.materials.length}`)
-                            prism.geometry.faces[2].materialIndex = (this.materials.length + (prism.geometry.faces[2].materialIndex + indexshift)) % this.materials.length;
-                            prism.geometry.faces[3].materialIndex = (this.materials.length + (prism.geometry.faces[3].materialIndex + indexshift)) % this.materials.length;
-                        }
-                        if (angleSection === "B") {
-                            // console.log("A: ", `from ${prism.geometry.faces[4].materialIndex} to ${(prism.geometry.faces[4].materialIndex + 3) % this.materials.length}`)
-                            prism.geometry.faces[4].materialIndex = (this.materials.length + (prism.geometry.faces[4].materialIndex + indexshift)) % this.materials.length;
-                            prism.geometry.faces[5].materialIndex = (this.materials.length + (prism.geometry.faces[5].materialIndex + indexshift)) % this.materials.length;
-                        }
-                        if (angleSection === "C") {
-                            // console.log("B: ", `from ${prism.geometry.faces[6].materialIndex} to ${(prism.geometry.faces[6].materialIndex + 3) % this.materials.length}`)
-                            prism.geometry.faces[6].materialIndex = (this.materials.length + (prism.geometry.faces[6].materialIndex + indexshift)) % this.materials.length;
-                            prism.geometry.faces[7].materialIndex = (this.materials.length + (prism.geometry.faces[7].materialIndex + indexshift)) % this.materials.length;
-                        }
-                    }
-                    prism.geometry.groupsNeedUpdate = true;
-                }
+            if (angleSection === 'B') {
+              console.log('B2: 4,5 ', `from ${prism.geometry.faces[4].materialIndex} to ${(prism.geometry.faces[4].materialIndex + 3) % this.materials.length}`);
+              prism.geometry.faces[4].materialIndex = (this.materials.length + (prism.geometry.faces[4].materialIndex + indexshift)) % this.materials.length;
+              prism.geometry.faces[5].materialIndex = (this.materials.length + (prism.geometry.faces[5].materialIndex + indexshift)) % this.materials.length;
             }
-            this.prev_rotation[index] = prism.rotation.z;
-        })
-
-        if (this.readyToRefresh && totalMovement < 0.01) {
-            this.readyToRefresh = false;
+            if (angleSection === 'C') {
+              console.log('C2: 6,7 ', `from ${prism.geometry.faces[6].materialIndex} to ${(prism.geometry.faces[6].materialIndex + 3) % this.materials.length}`);
+              prism.geometry.faces[6].materialIndex = (this.materials.length + (prism.geometry.faces[6].materialIndex + indexshift)) % this.materials.length;
+              prism.geometry.faces[7].materialIndex = (this.materials.length + (prism.geometry.faces[7].materialIndex + indexshift)) % this.materials.length;
+            }
+          }
+          prism.geometry.groupsNeedUpdate = true;
         }
-    }
+      }
+      this.prev_rotation[index] = prism.rotation.z;
+      return prism;
+    });
 
-    _getAngleSection(rotation) {
-        const angle = rotation % (2 * Math.PI);
-        if (angle > 5 * Math.PI / 3 || angle <= 1 * Math.PI / 3) return "A";
-        if (angle > 1 * Math.PI / 3 && angle <= 3 * Math.PI / 3) return "B";
-        if (angle > 3 * Math.PI / 3 && angle <= 5 * Math.PI / 3) return "C";
+    if (this.readyToRefresh && totalMovement < 0.01) {
+      this.readyToRefresh = false;
     }
+  }
+
+  static _getAngleSection(rotation) {
+    const angle = rotation % (2 * Math.PI);
+    if (angle > 5 * (Math.PI / 3) || angle <= 1 * (Math.PI / 3)) return 'A';
+    if (angle > 1 * (Math.PI / 3) && angle <= 3 * (Math.PI / 3)) return 'B';
+    return 'C';
+  }
 }
