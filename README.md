@@ -1,6 +1,10 @@
 threevision
 ========
 
+[![NPM package][npm-img]][npm-url]
+[![Build Size][build-size-img]][build-size-url]
+[![Dependencies][dependencies-img]][dependencies-url]
+
 An interactive trivision display for [three.js]("https://threejs.org").
 
 
@@ -88,3 +92,10 @@ myScene.add(threevision);
 * three.js checklist
 * todo: fix imports of example after hosted on npm
 * add tests
+
+[npm-img]: https://img.shields.io/npm/v/threevision.svg
+[npm-url]: https://npmjs.org/package/threevision
+[build-size-img]: https://img.shields.io/bundlephobia/minzip/threevision.svg
+[build-size-url]: https://bundlephobia.com/result?p=threevision
+[dependencies-img]: https://img.shields.io/david/foxinsox/threevision.svg
+[dependencies-url]: https://david-dm.org/foxinsox/threevision
