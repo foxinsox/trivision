@@ -4,9 +4,9 @@
       margin: 0;
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r99/three.min.js"></script>
-  <script src="../dist/threevision.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+  <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r99/three.min.js"></script>
+  <script type='text/javascript' src="../dist/threevision.js"></script>
+  <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js'></script>
 </head>
 
 <body>
@@ -92,19 +92,62 @@
     threevision.materials = materials;
     threevision.height = window.innerHeight * 0.8;
     threevision.width = threevision.height; //make it square
-    threevision.prismCount = 10;
-    threevision.speed = 10;
     threevision.mouseOverEffect = true;
-    threevision.vertical = true;
     scene.add(threevision);
 
-    // Kick-off renderer
-    (function animate() { // IIFE
-      // Frame cycle
-      threevision.update(step, scene, camera, mouse);
-      renderer.render(scene, camera);
-      requestAnimationFrame(animate);
-    })();
+
+    // Create the gui
+    var controls = new function () {
+      this.prismCount = 10;
+      this.easing = 0.1;
+      this.speed = 5;
+      this.vertical = false;
+      this.mouseOverEffect = true;
+      this.shadows = true;
+    }
+    var gui = new dat.GUI();
+    var prismCount = gui.add(controls, 'prismCount', 1, 100).listen();
+    var speed = gui.add(controls, 'speed', 1, 10).listen();
+    var easing = gui.add(controls, 'easing', 0.01, 0.5).listen();
+    var vertical = gui.add(controls, 'vertical', false, true).listen();
+    var mouseOverEffect = gui.add(controls, 'mouseOverEffect', false, true).listen();
+    var shadows = gui.add(controls, 'shadows', false, true).listen();
+
+
+    prismCount.onChange(function (value) {
+      threevision.prismCount = Math.round(value);
+      threevision.step = 0;
+    });
+
+    speed.onChange(function (value) {
+      threevision.speed = value;
+    });
+
+    easing.onChange(function (value) {
+      threevision.speed = value;
+    });
+
+    vertical.onChange(function (value) {
+      threevision.vertical = value;
+    });
+
+    mouseOverEffect.onChange(function (value) {
+      threevision.mouseOverEffect = value;
+    });
+
+    shadows.onChange(function (value) {
+      threevision.shadows = value;
+    });
+
+
+
+      // Kick-off renderer
+      (function animate() { // IIFE
+        // Frame cycle
+        threevision.update(step, scene, camera, mouse);
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+      })();
 
     function onMouseMove(event) {
       // calculate mouse position in normalized device coordinates

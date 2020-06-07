@@ -72,7 +72,7 @@ export default class extends three.Group {
 
   get speed() { return this._speed; }
 
-  set shadows(shadows) { this._shadows = shadows; }
+  set shadows(shadows) { this._shadows = shadows; this._init(); }
 
   get shadows() { return this._shadows; }
 
