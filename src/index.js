@@ -133,7 +133,7 @@ export default class extends three.Group {
       const deltaMousePos = new three.Vector3().subVectors(this.prev_mouse, currentMousePos);
 
       let delta;
-      if (this.vertical) delta = deltaMousePos.x;
+      if (this.vertical) delta = deltaMousePos.x * -1;
       else delta = deltaMousePos.y;
       if (!this.readyToRefresh && delta !== 0) {
         // update the picking ray with the camera and mouse position

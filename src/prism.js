@@ -38,6 +38,7 @@ export default class Prism extends three.Mesh {
     this._prismHeight = prismHeight;
     this._shadows = shadows;
     this._vertical = vertical;
+    this._materials = materials;
     super.geometry = this._calculateGeometry();
   }
 
@@ -125,13 +126,14 @@ export default class Prism extends three.Mesh {
     geometry.faceVertexUvs[0].push([NW, SE, NE]);
 
     geometry.computeVertexNormals();
-    geometry.faces[2].materialIndex = 2;
-    geometry.faces[3].materialIndex = 2;
-    geometry.faces[4].materialIndex = 0;
-    geometry.faces[5].materialIndex = 0;
-    geometry.faces[6].materialIndex = 1;
-    geometry.faces[7].materialIndex = 1;
 
+    // apply modulo operation in case materials.length < 3
+    geometry.faces[2].materialIndex = 0 % this._materials.length;
+    geometry.faces[3].materialIndex = 0 % this._materials.length;
+    geometry.faces[4].materialIndex = 1 % this._materials.length;
+    geometry.faces[5].materialIndex = 1 % this._materials.length;
+    geometry.faces[6].materialIndex = 2 % this._materials.length;
+    geometry.faces[7].materialIndex = 2 % this._materials.length;
     return geometry;
   }
 }
