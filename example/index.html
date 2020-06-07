@@ -24,31 +24,30 @@
     document.getElementById('container').appendChild(renderer.domElement);
 
 
-    const content = [];
+    // Prepare some sweet images by karen arnold
+    const images = [];
+    images.push("https://foxinsox.github.io/threevision/example/tropical-leaves-fruit-background_1024.jpg");
+    images.push("https://foxinsox.github.io/threevision/example/bird-vintage-background-1547020715cla_1024.jpg");
+    images.push("https://foxinsox.github.io/threevision/example/roses-background-vintage-wallpaper_1024.jpg");
 
+    // Prepare some random colors
+    const colors = [];
+    const colorsCount = 10
+    for (let i = 0; i < colorsCount; i++) {
+      colors.push(new THREE.Color(`hsl(${i * 360 / colorsCount}, 75%, 50%)`));
+    }
 
-    // Create threevision colors
-    // let's generate a nice color scheme:
-    axios.get('http://thecolorapi.com/scheme?hex=0047AB&rgb=0,71,171&hsl=215,100%,34%&cmyk=100,58,0,33&format=html&mode=analogic&count=6', {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      }
-    })
-      .then((response) => {
-        console.log(response);
-      }, (error) => {
-        //if something went wrong, let's just generate random colors
-        for (let i = 0; i < 10; i++) {
-          content.push(new THREE.Color(`hsl(${i * 360 / colorLength}, 75%, 50%)`));
-        }
-      });
-
-
-    // Some sweet images by karen arnold for demo
-    content.push("https://foxinsox.github.io/threevision/example/tropical-leaves-fruit-background_1024.jpg");
-    content.push("https://foxinsox.github.io/threevision/example/bird-vintage-background-1547020715cla_1024.jpg");
-    content.push("https://foxinsox.github.io/threevision/example/roses-background-vintage-wallpaper_1024.jpg");
-
+    // Lets create the textures from images and colors
+    const materials = [];
+    images.forEach((el) => {
+      const texture = new THREE.TextureLoader().load(el);
+      materials.push(new THREE.MeshBasicMaterial({ map: texture }));
+    });
+    colors.forEach((el) => {
+      materials.push(new THREE.MeshBasicMaterial({ color: el }));
+    });
+    //and shuffle
+    shuffle(materials);
 
     // Setup scene
     const scene = new THREE.Scene();
@@ -63,7 +62,7 @@
 
     // Create a threevision
     const threevision = new Threevision();
-    threevision.content = content;
+    threevision.materials = materials;
     threevision.width = window.innerWidth * 0.8;
     threevision.height = threevision.width; //sq
     threevision.prismCount = 10;
@@ -110,6 +109,16 @@
 
     function onMouseClicked(event) {
       step++;
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * i)
+        const temp = array[i]
+        array[i] = array[j]
+        array[j] = temp
+      }
+      return array;
     }
 
     window.addEventListener('mousemove', onMouseMove, false);

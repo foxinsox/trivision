@@ -23,13 +23,13 @@ const three = window.THREE
 
 
 export default class extends three.Group {
-  constructor(content, width, height, vertical = false, easing = 0.05, prismCount = 24, speed = 4, shadows = true, mouseOverEffect = false) {
+  constructor(materials, width, height, vertical = false, easing = 0.05, prismCount = 24, speed = 4, shadows = true, mouseOverEffect = false) {
     super();
     // init class fields
 
     // array containing image paths/urls or THREE.Color objects.
     // this array can contain different types!
-    this._content = content;
+    this._materials = materials;
     this._width = width;
     this._height = height;
     this._easing = easing;
@@ -38,20 +38,19 @@ export default class extends three.Group {
     this._shadows = shadows;
     this._vertical = vertical;
     this._mouseOverEffect = mouseOverEffect;
-
     this._readyToRefresh = false;
     this._clock = new three.Clock();
     this._previousStep = 0;
     this._previousMousePos = new three.Vector3(0, 0, 0);
     this._raycaster = new three.Raycaster();
-    if (!this._content || this._content.length === 0) this._content = [new three.Color(0xaaaaaa)];
+    if (!this._materials || this._materials.length === 0) this._materials = [new three.Color(0xaaaaaa)];
     this._init();
   }
 
   // Getters & Setters
-  set content(content) { this._content = content; this._init(); }
+  set materials(materials) { this._materials = materials; this._init(); }
 
-  get content() { return this._content; }
+  get materials() { return this._materials; }
 
   set width(width) { this._width = width; this._init(); }
 
@@ -85,28 +84,11 @@ export default class extends three.Group {
 
   get mouseOverEffect() { return this._mouseOverEffect; }
 
-  _prepareMaterials() {
-    // prepare mesh materials
-    const materials = [];
-    this._content.forEach((el) => {
-      if (typeof (el) === 'string') {
-        const texture = new three.TextureLoader().load(el);
-        materials.push(new three.MeshBasicMaterial({ map: texture }));
-      }
-      if (typeof (el) === 'object') {
-        materials.push(new three.MeshBasicMaterial({ color: el }));
-      }
-    });
-    return materials;
-  }
-
   _init() {
     // if re-initialization: remove old threevision from scene before creating a new one
     if (this.children) {
       this.children = [];
     }
-
-    this._materials = this._prepareMaterials();
 
     let prismWidth = this.width * 0.5;
     let prismHeight = (this.height * 0.5) / this.prismCount;
@@ -116,7 +98,7 @@ export default class extends three.Group {
     }
 
     for (let index = 0; index < this.prismCount; index += 1) {
-      const prism = new Prism(index, this.prismCount, this._materials, prismWidth, prismHeight, this.shadows, this.vertical);
+      const prism = new Prism(index, this.prismCount, this.materials, prismWidth, prismHeight, this.shadows, this.vertical);
       // arrange position for threevision structure
       prism.rotation.y += Math.PI / 2;
       prism.position.y -= ((this.prismCount / 2) * prismHeight) - prismHeight / 2;
