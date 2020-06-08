@@ -5,8 +5,8 @@
     }
   </style>
   <script src="https://unpkg.com/three"></script>
-  <script src="https://unpkg.com/threevision"></script>
-  <!-- <script src="../dist/threevision.min.js"></script> -->
+  <!-- <script src="https://unpkg.com/threevision"></script> -->
+  <script src="../dist/threevision.min.js"></script>
   <script src='https://unpkg.com/dat.gui'></script>
 </head>
 
@@ -17,7 +17,7 @@
   <div id="container"></div>
 
   <script>
-    const mouse = new THREE.Vector3();
+    const mouse = new THREE.Vector2();
     let step = 0;
 
     // Setup renderer
@@ -106,7 +106,7 @@
 
     // Create the gui
     var controls = new function () {
-      this.prismCount = 10;
+      this.prismCount = 12;
       this.easing = 0.1;
       this.speed = 5;
       this.vertical = false;
@@ -114,7 +114,7 @@
       this.shadows = true;
     }
     var gui = new dat.GUI();
-    var prismCount = gui.add(controls, 'prismCount', 1, 100).listen();
+    var prismCount = gui.add(controls, 'prismCount', 1, 50).listen();
     var speed = gui.add(controls, 'speed', 1, 10).listen();
     var easing = gui.add(controls, 'easing', 0.01, 0.5).listen();
     var vertical = gui.add(controls, 'vertical', false, true).listen();
@@ -162,7 +162,6 @@
       // (-1 to +1) for both components
       mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-      mouse.z = 0;
     }
 
     function onMouseClicked(event) {

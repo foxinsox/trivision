@@ -30,7 +30,7 @@ export default class extends three.Group {
     this._height = height;
     this._step = 0;
     this._easing = 0.05;
-    this._prismCount = 24;
+    this._prismCount = 12;
     this._speed = 4;
     this._shadows = true;
     this._vertical = false;
@@ -38,7 +38,7 @@ export default class extends three.Group {
     this._readyToRefresh = false;
     this._clock = new three.Clock();
     this._previousStep = 0;
-    this._previousMousePos = new three.Vector3(0, 0, 0);
+    this._previousMousePos = new three.Vector2(0, 0);
     this._raycaster = new three.Raycaster();
     if (!this._materials || this._materials.length === 0) this._materials = [new three.Color(0xaaaaaa)];
     this._init();
@@ -106,29 +106,31 @@ export default class extends three.Group {
       prism.position.y += index * prismHeight;
       this.add(prism);
     }
-    if (this.vertical) {
+    if (this.vertical && this.rotation.z === 0) {
       this.rotation.z -= Math.PI / 2;
+    } else {
+      this.rotation.z = 0;
     }
   }
 
 
   _applyMouseOverEffect(scene, camera, mousePos) {
-    const currentMousePos = new three.Vector3(mousePos.x, mousePos.y, mousePos.z);
-    const deltaMousePos = new three.Vector3().subVectors(this._previousMousePos, currentMousePos);
+    const currentMousePos = new three.Vector2(mousePos.x, mousePos.y + 0.2);
+    const deltaMousePos = new three.Vector2().subVectors(this._previousMousePos, currentMousePos);
 
     let delta;
     if (this.vertical) delta = deltaMousePos.x;
     else delta = deltaMousePos.y;
     if (!this._readyToRefresh && delta !== 0) {
       // update the picking ray with the camera and mousePos position
-      this._raycaster.setFromCamera(mousePos, camera);
+      this._raycaster.setFromCamera(currentMousePos, camera);
       // calculate objects intersecting the picking ray
       const intersects = this._raycaster.intersectObjects(scene.children.filter((obj) => obj.type === 'Group'), true);
       for (let i = 0; i < intersects.length; i += 1) {
         const { uuid } = intersects[i].object;
         const prism = this.children.find((obj) => obj.uuid === uuid);
         if (prism) {
-          prism.step += delta * 10;
+          prism.step += delta * this.prismCount;
         }
       }
     }
@@ -137,7 +139,7 @@ export default class extends three.Group {
 
   _updatePrismsStep() {
     // set new step rotation
-    console.log(this._step);
+    // console.log(this._step);
     if (this._step !== this._previousStep) {
       this.children.map((p) => {
         const prism = p;

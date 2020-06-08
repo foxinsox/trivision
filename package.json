@@ -1,6 +1,6 @@
 {
   "name": "threevision",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "A interactive threevision to display your images, built with three.js",
   "unpkg": "dist/threevision.min.js",
   "main": "dist/threevision.common.js",
