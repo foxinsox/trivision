@@ -5,9 +5,6 @@
   "unpkg": "dist/threevision.min.js",
   "main": "dist/threevision.common.js",
   "module": "dist/threevision.module.js",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "scripts": {
     "build": "rimraf dist && rollup -c",
     "dev": "rollup -w -c",
