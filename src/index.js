@@ -115,7 +115,7 @@ export default class extends three.Group {
 
 
   _applyMouseOverEffect(scene, camera, mousePos) {
-    const currentMousePos = new three.Vector2(mousePos.x, mousePos.y + 0.2);
+    const currentMousePos = new three.Vector2(mousePos.x, mousePos.y);
     const deltaMousePos = new three.Vector2().subVectors(this._previousMousePos, currentMousePos);
 
     let delta;
