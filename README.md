@@ -66,8 +66,7 @@ myScene.add(threevision);
 | <b>materials</b> | Array with containing Three.js textures. This is what will be displayed. See the example for how to display images or colors. |         |
 | <b>width</b>     | The width of the threevision display.                                                                                         |  `100`  |
 | <b>height</b>    | The height of the threevision display.                                                                                        |  `100`  |
-| <b>step</b>      | Index of the material to be facing frontwards. Changing step will cause the threevision display to rotate.                    |    `0`    |
-
+| <b>step</b>      | Index of the material to be facing frontwards. <b>Changing step makes the threevision display rotate.</b>                    |    `0`    |
 | <b>prismCount</b>      | The amount of prism elements of the threevision display.                                                                      |  `24`   |
 | <b>vertical</b>        | The orientation of the prisms.                                                                                                | `false` |
 | <b>easing</b>          | The easing of the prisms rotation.                                                                                            | `0.05`  |
@@ -91,7 +90,6 @@ myScene.add(threevision);
 
 * todo: fix documentation in code
 * three.js checklist
-* todo: fix imports of example after hosted on npm
 * add tests
 
 [npm-img]: https://img.shields.io/npm/v/threevision.svg
