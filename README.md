@@ -36,7 +36,7 @@ var materials = []
 var texture = new THREE.TextureLoader().load("someImage.jpg");
 materials.push(new THREE.MeshBasicMaterial({ map: texture }));
 
-var col = new THREE.Color("hsl(100, 75%, 50%)");
+var color = new THREE.Color("hsl(100, 75%, 50%)");
 materials.push(new THREE.MeshBasicMaterial({ color: color }));
 
 //create a threevision
@@ -44,11 +44,12 @@ var threevision = new Threevision(materials,100,100);
 var myScene = new THREE.Scene();
 myScene.add(threevision);
 
-
+//make threevision shift avery 2 seconds
+let stepCounter = setInterval(() => {threevision.step = step; step += 1;}, 2000);
 
 //in animation loop
-(function animate()
-    threevision.update(step);
+(function animate(){
+    threevision.update();
     })();
 
 ```
@@ -85,12 +86,6 @@ myScene.add(threevision);
 | <b>mousePos</b> | The current mouse position. Required only if <b>mouseOverEffect</b> is set to `true`. | `THREE.Vector2` |
 
 
-
-### Todo
-
-* todo: fix documentation in code
-* three.js checklist
-* add tests
 
 [npm-img]: https://img.shields.io/npm/v/threevision.svg
 [npm-url]: https://npmjs.org/package/threevision

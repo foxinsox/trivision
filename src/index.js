@@ -4,18 +4,20 @@ import {
   TextureLoader,
   MeshBasicMaterial,
   Vector3,
+  Vector2,
   Group,
   Clock,
   Raycaster,
 } from 'three';
 import Prism from './prism';
 
-const three = window.THREE
+const three = typeof window !== 'undefined' && window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
     TextureLoader,
     MeshBasicMaterial,
     Vector3,
+    Vector2,
     Group,
     Clock,
     Raycaster,
