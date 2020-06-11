@@ -1,0 +1,238 @@
+<head>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+  <script src="https://unpkg.com/three"></script>
+  <script src='https://unpkg.com/dat.gui'></script>
+  <script src='https://mrdoob.github.io/stats.js/build/stats.min.js'></script>
+  <script src='https://cdn.jsdelivr.net/npm/three@0.101.1/examples/js/controls/OrbitControls.js'></script>
+  <!-- <script src="https://unpkg.com/threevision"></script> -->
+  <script src="../dist/threevision.min.js"></script>
+</head>
+
+<body>
+
+  <div id="container">
+    <p style="text-align: center;
+      vertical-align: middle;
+      position: absolute;
+      left: 50%;
+      margin-right: -50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      font-size: large;">
+      Click to shift and align. Drag to change perspective.</p>
+  </div>
+
+  <script>
+    const mouse = new THREE.Vector2();
+    let step = 0;
+
+    // Setup renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    const rendererSize = new THREE.Vector2;
+    renderer.getSize(rendererSize);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.getElementById('container').appendChild(renderer.domElement);
+
+
+    // Prepare some nice images as textures
+    const images = [];
+    images.push("https://foxinsox.github.io/threevision/example/tropical-leaves-fruit-background_1024.jpg");
+    images.push("https://foxinsox.github.io/threevision/example/bird-vintage-background-1547020715cla_1024.jpg");
+    images.push("https://foxinsox.github.io/threevision/example/color-4057072_1024.jpg");
+    images.push("https://foxinsox.github.io/threevision/example/flowers-pattern-design-illustration_1024.jpg");
+    images.push("https://foxinsox.github.io/threevision/example/illustration-3270278_1024.jpg");
+    images.push("https://foxinsox.github.io/threevision/example/illustration-4643567_1024.jpg");
+
+    // Prepare some random colors as textures
+    const colors = [];
+    const colorsCount = 10
+    for (let i = 0; i < colorsCount; i++) {
+      colors.push(new THREE.Color(`hsl(${i * 360 / colorsCount}, 75%, 50%)`));
+    }
+
+    // Lets create the actual textures from images and colors
+    const materials = [];
+    images.forEach((el) => {
+      const texture = new THREE.TextureLoader().load(el);
+      materials.push(new THREE.MeshBasicMaterial({ map: texture }));
+    });
+    colors.forEach((el) => {
+      materials.push(new THREE.MeshBasicMaterial({ color: el }));
+    });
+
+    //and shuffle
+    shuffle(materials);
+
+    // Setup scene
+    const scene = new THREE.Scene();
+    scene.add(new THREE.AmbientLight(0xaaaaaa));
+
+    // Setup camera
+    const camera = new THREE.PerspectiveCamera();
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    camera.lookAt(0, 0, 0);
+    camera.position.z = 480;
+
+
+
+
+
+
+    // Optional: Create a light and shadow layer
+    var light = new THREE.SpotLight(0xaaabaa);
+    light.position.copy(camera.position);
+    light.castShadow = true;            // default false
+    light.shadow.mapSize.width = 4096;
+    light.shadow.mapSize.height = 4096;
+    light.shadow.camera.near = 0.5;       // default
+    light.shadow.camera.far = 1000
+    light.position.x -= 100;
+    light.position.y += 100;
+    scene.add(light);
+
+    /*
+    const planeGeometry = new THREE.PlaneBufferGeometry(innerWidth, innerHeight);
+    const planeMaterial = new THREE.ShadowMaterial();
+    planeMaterial.opacity = 0.05;
+    // const planeMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xbbbbbb) })
+    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    plane.position.z = -50;
+    plane.receiveShadow = true;
+    scene.add(plane);
+*/
+
+    //BoxGeometry (makes a geometry)
+    var geometry = new THREE.BoxGeometry( 1000, 1000, 1000);
+    //Material to apply to the cube (green)
+    var material = new THREE.MeshLambertMaterial({ color: 0xf0f0f0 });
+    material.side = THREE.BackSide;
+    //Applies material to BoxGeometry
+    var cube = new THREE.Mesh(geometry, material);
+    cube.receiveShadow = true;
+    cube.position.z = 180;
+    cube.position.y = 220;
+    cube.rotation.y = 20;
+    //Adds cube to the scene
+    scene.add(cube);
+
+    // Create a threevision
+    const threevision = new Threevision();
+    threevision.materials = materials;
+    threevision.height = Math.min(window.innerHeight, window.innerWidth) * 0.8;
+    threevision.width = threevision.height; //make it square
+    threevision.mouseOverEffect = true;
+    scene.add(threevision);
+
+    // Directional Light
+    var ambientLight = new THREE.DirectionalLight( 0x4A4A4A ); // soft white light
+    ambientLight.position = new THREE.Vector3(0,800,800);
+    ambientLight.lookAt(threevision)
+    scene.add(ambientLight);
+
+
+    // Create the gui
+    var controls = new function () {
+      this.prismCount = 12;
+      this.easing = 0.1;
+      this.speed = 5;
+      this.vertical = false;
+      this.mouseOverEffect = true;
+      this.shadows = true;
+    }
+
+    var gui = new dat.GUI();
+    var prismCount = gui.add(controls, 'prismCount', 1, 50).listen();
+    var speed = gui.add(controls, 'speed', 1, 10).listen();
+    var easing = gui.add(controls, 'easing', 0.01, 0.5).listen();
+    var vertical = gui.add(controls, 'vertical', false, true).listen();
+    var mouseOverEffect = gui.add(controls, 'mouseOverEffect', false, true).listen();
+    var shadows = gui.add(controls, 'shadows', false, true).listen();
+
+    prismCount.onChange(function (value) {
+      threevision.prismCount = Math.round(value);
+    });
+
+    speed.onChange(function (value) {
+      threevision.speed = value;
+    });
+
+    easing.onChange(function (value) {
+      threevision.speed = value;
+    });
+
+    vertical.onChange(function (value) {
+      threevision.vertical = value;
+    });
+
+    mouseOverEffect.onChange(function (value) {
+      threevision.mouseOverEffect = value;
+    });
+
+    shadows.onChange(function (value) {
+      threevision.shadows = value;
+    });
+
+
+
+    // // controls
+    var controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.maxPolarAngle = Math.PI * 0.5;
+    controls.minDistance = 100;
+    controls.maxDistance = 5000;
+
+    // performance monitor
+    stats = new Stats();
+    container.appendChild(stats.dom);
+
+    // alternative to mousclick: change step with the interval of 2 seconds
+    // let stepCounter = setInterval(() => {threevision.step = step; step += 1;}, 2000);
+
+
+
+    // Kick-off renderer
+    (function animate() { // IIFE
+      // Frame cycle
+      stats.begin();
+      controls.update();
+      light.lookAt(camera.position);
+      // plane.lookAt(camera.position);
+      threevision.update(scene, camera, mouse);
+      renderer.render(scene, camera);
+      stats.end();
+      requestAnimationFrame(animate);
+    })();
+
+    function onMouseMove(event) {
+      // calculate mouse position in normalized device coordinates
+      // (-1 to +1) for both components
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    }
+
+    function onMouseClicked(event) {
+      step++;
+      threevision.step = step;
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * i)
+        const temp = array[i]
+        array[i] = array[j]
+        array[j] = temp
+      }
+      return array;
+    }
+
+    window.addEventListener('mousemove', onMouseMove, false);
+    window.addEventListener('click', onMouseClicked, false);
+
+  </script>
+</body>

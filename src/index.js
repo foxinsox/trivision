@@ -41,6 +41,7 @@ export default class extends three.Group {
     this._clock = new three.Clock();
     this._previousStep = 0;
     this._previousMousePos = new three.Vector2(0, 0);
+    this._previousIntersectsUuid = 0;
     this._raycaster = new three.Raycaster();
     if (!this._materials || this._materials.length === 0) this._materials = [new three.Color(0xaaaaaa)];
     this._init();
@@ -126,17 +127,22 @@ export default class extends three.Group {
     if (!this._readyToRefresh && delta !== 0) {
       // update the picking ray with the camera and mousePos position
       this._raycaster.setFromCamera(currentMousePos, camera);
-      // calculate objects intersecting the picking ray
+      // calculate group (=trivison) objects intersecting the picking ray
       const intersects = this._raycaster.intersectObjects(scene.children.filter((obj) => obj.type === 'Group'), true);
-      for (let i = 0; i < intersects.length; i += 1) {
-        const { uuid } = intersects[i].object;
-        const prism = this.children.find((obj) => obj.uuid === uuid);
-        if (prism) {
-          prism.step += delta * this.prismCount;
+      if (intersects.length === 1) {
+        for (let i = 0; i < intersects.length; i += 1) {
+          const { uuid } = intersects[i].object;
+          const prism = this.children.find((obj) => obj.uuid === uuid);
+          if (prism) {
+            if (this._previousIntersectsUuid !== uuid) {
+              prism.step += (delta >= 0 ? 1 : -1);
+            }
+            this._previousIntersectsUuid = uuid;
+          }
         }
       }
+      this._previousMousePos = currentMousePos;
     }
-    this._previousMousePos = currentMousePos;
   }
 
   _updatePrismsStep() {
