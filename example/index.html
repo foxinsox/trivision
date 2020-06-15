@@ -92,10 +92,13 @@
 
     // Prepare some videos as textures
     const videos = [];
-    videos.push("https://foxinsox.github.io/threevision/example/video.mp4");
+    videos.push("https://foxinsox.github.io/threevision/example/video1.mp4"); //Video by Stef Franken from Pexels
+    videos.push("https://foxinsox.github.io/threevision/example/video2.mp4"); //Video by Cathrine Vlasov from Pexels
+    videos.push("https://foxinsox.github.io/threevision/example/video3.mp4"); //Video by Vitaly Vlasov from Pexels
     videos.forEach((vid) => {
       // create the video element
-      const video = document.createElement('video');
+      const elementId = video.split('/')[video.split('/').length-1].split('.')[0];
+      const video = document.createElement(elementId);
       video.setAttribute('crossorigin', 'anonymous');
       video.src = vid;
       video.muted = true;
