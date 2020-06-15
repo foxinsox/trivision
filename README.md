@@ -72,7 +72,7 @@ let stepCounter = setInterval(() => {threevision.step = step; step += 1;}, 2000)
 | <b>vertical</b>        | The orientation of the prisms.                                                                                                | `false` |
 | <b>easing</b>          | The easing of the prisms rotation.                                                                                            | `0.05`  |
 | <b>speed</b>           | The speed of the prisms rotation.                                                                                             |   `4`   |
-| <b>mouseOverEffect</b> | Applies a mouse-over effect that puts the prisms in unchoreographed disorder.                                                 | `false` |
+| <b>mouseOverEffect</b> | Applies a mouse-over effect that adds a wave-like animation.                                                 | `false` |
 | <b>shadows</b>         | If the THREE.Scene is prepared for shadows, the threevision displays shadow behavior can be manually switched on/off.         | `true`  |
 
 ### Animation update
