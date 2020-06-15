@@ -102,6 +102,7 @@
       video.src = vid;
       video.muted = true;
       video.loop = true;
+      video.autoplay = true;
       video.load();
       video.play();
       const videoTexture = new THREE.VideoTexture(video);
