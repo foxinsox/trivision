@@ -3,6 +3,38 @@
     body {
       margin: 0;
       background-color: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    }
+
+    #container{
+      transition: all 0.3s ease;
+    }
+
+    #loadingDiv {
+      margin: 20% auto;
+      width: 10%;
+      text-align: center;
+    }
+
+    .loader {
+      border: 16px solid #f3f3f3;
+      /* Light grey */
+      border-top: 16px solid #3498db;
+      /* Blue */
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
   </style>
   <title>Threevision</title>
@@ -37,8 +69,11 @@
 </head>
 
 <body>
-
-  <div id="container">
+  <div id="loadingDiv">
+    <div class="loader" id="videoTextureLoader"></div>
+    <p id="loadingText"></p>
+  </div>
+  <div id="container" style="display: none;">
     <p style="text-align: center;
       vertical-align: middle;
       position: absolute;
@@ -50,9 +85,16 @@
       Click to shift and align. Drag to change perspective. Scroll to zoom.</p>
   </div>
 
+
   <script>
     const mouse = new THREE.Vector2();
     let step = 0;
+    let loadingTextures = [];
+
+
+    /**
+     *    THREE.JS SCENE SETUP
+     */
 
     // Setup renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -62,59 +104,6 @@
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.getElementById('container').appendChild(renderer.domElement);
-
-    // This array will hold all textures of our threevision
-    const materials = [];
-
-    // Prepare some nice images as textures
-    const images = [];
-    images.push("https://foxinsox.github.io/threevision/example/tropical-leaves-fruit-background_1024.jpg");
-    images.push("https://foxinsox.github.io/threevision/example/bird-vintage-background-1547020715cla_1024.jpg");
-    images.push("https://foxinsox.github.io/threevision/example/color-4057072_1024.jpg");
-    images.push("https://foxinsox.github.io/threevision/example/flowers-pattern-design-illustration_1024.jpg");
-    images.push("https://foxinsox.github.io/threevision/example/illustration-3270278_1024.jpg");
-    images.push("https://foxinsox.github.io/threevision/example/illustration-4643567_1024.jpg");
-    images.forEach((el) => {
-      const texture = new THREE.TextureLoader().load(el);
-      materials.push(new THREE.MeshBasicMaterial({ map: texture }));
-    });
-
-    // Prepare some random colors as textures
-    /*const colors = [];
-    const colorsCount = 3
-    for (let i = 0; i < colorsCount; i++) {
-      colors.push(new THREE.Color(`hsl(${i * 360 / colorsCount}, 75%, 50%)`));
-    }
-    colors.forEach((el) => {
-      materials.push(new THREE.MeshBasicMaterial({ color: el }));
-    });*/
-
-
-    // Prepare some videos as textures
-    const videos = [];
-    videos.push("https://foxinsox.github.io/threevision/example/video1.mp4"); //Video by Stef Franken from Pexels
-    videos.push("https://foxinsox.github.io/threevision/example/video2.mp4"); //Video by Dapur Melodi from Pexels
-    videos.push("https://foxinsox.github.io/threevision/example/video3.mp4"); //Video by Vitaly Vlasov from Pexels
-    videos.forEach((vid) => {
-      // create the video element
-      const video = document.createElement('video');
-      video.setAttribute('crossorigin', 'anonymous');
-      video.src = vid;
-      video.muted = true;
-      video.loop = true;
-      video.autoplay = true;
-      video.load();
-      video.play();
-      const videoTexture = new THREE.VideoTexture(video);
-      videoTexture.minFilter = THREE.LinearFilter;
-      videoTexture.magFilter = THREE.LinearFilter;
-      videoTexture.format = THREE.RGBFormat;
-      materials.push(new THREE.MeshBasicMaterial({ map: videoTexture }));
-    });
-
-
-    //shuffle all materials
-    shuffle(materials);
 
     // Setup scene
     const scene = new THREE.Scene();
@@ -127,9 +116,7 @@
     camera.lookAt(0, 0, 0);
     camera.position.z = 200;
 
-
-
-    // Optional: Create a light and shadow layer
+    // Optional: Create a light for shadow casting
     var light = new THREE.SpotLight(0xcccccc);
     light.castShadow = true;            // default false
     light.shadow.mapSize.width = 4096;
@@ -141,10 +128,10 @@
     light.position.z = 480;
     scene.add(light);
 
+    // Optional: Create a shadow layer, this will enable the renderer to have transparent background with shadows
     const planeGeometry = new THREE.PlaneBufferGeometry(innerWidth, innerHeight);
     const planeMaterial = new THREE.ShadowMaterial();
     planeMaterial.opacity = 0.05;
-    // const planeMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xbbbbbb) })
     const plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.position.z = -50;
     plane.receiveShadow = true;
@@ -152,9 +139,12 @@
 
 
 
-    // Create a threevision
+
+    /**
+     *    THREEVISION
+     */
     const threevision = new Threevision();
-    threevision.materials = materials;
+    threevision.materials = prepareMaterials();
     threevision.height = Math.min(window.innerHeight, window.innerWidth) * 0.8;
     threevision.width = threevision.height; //make it square
     threevision.mouseOverEffect = true;
@@ -162,7 +152,11 @@
     scene.add(threevision);
 
 
-    // Create the gui
+
+
+    /**
+     *    GUI
+     */
     var controls = new function () {
       this.prismCount = 12;
       this.easing = 0.1;
@@ -206,32 +200,37 @@
       threevision.shadows = value;
     });
 
-    darkmode.onChange(function (value){
+    darkmode.onChange(function (value) {
       if (value && (document.body.style.backgroundColor === 'white' || document.body.style.backgroundColor === '')) {
-          document.body.style.backgroundColor = 'black'
-        } else {
-          document.body.style.backgroundColor = 'white'
-        }
+        document.body.style.backgroundColor = 'black'
+      } else {
+        document.body.style.backgroundColor = 'white'
+      }
     });
 
 
 
-    // // controls
+    /**
+     *    CAMERA CONTROLS
+     */
     var controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.maxPolarAngle = Math.PI * 0.5;
     controls.minDistance = 100;
     controls.maxDistance = 5000;
 
-    // performance monitor
+
+
+    /**
+     *    STATS DISPLAY
+     */
     stats = new Stats();
     container.appendChild(stats.dom);
 
-    // alternative to mousclick: change step with the interval of 2 seconds
-    // let stepCounter = setInterval(() => {threevision.step = step; step += 1;}, 2000);
 
 
-
-    // Kick-off renderer
+    /**
+     *    KICK OFF THREE.JS RENDERER
+     */
     (function animate() { // IIFE
       // Frame cycle
       stats.begin();
@@ -244,6 +243,11 @@
       requestAnimationFrame(animate);
     })();
 
+
+
+    /**
+     *    MOUSE / TOUCH INTERACTIVITY
+     */
     function onMouseMove(event) {
       // calculate mouse position in normalized device coordinates
       // (-1 to +1) for both components
@@ -256,6 +260,85 @@
       threevision.step = step;
     }
 
+    window.addEventListener('mousemove', onMouseMove, false);
+    window.addEventListener('click', onMouseClicked, false);
+    window.addEventListener('touchstart', onMouseClicked, false);
+
+
+
+
+    /**
+     *    THREE.JS MATERIAL LOADERS FOR OUR THREEVISION
+     */
+    function prepareMaterials() {
+      const materials = [];
+
+      // Prepare some nice images as textures
+      const images = [];
+      images.push("https://foxinsox.github.io/threevision/example/tropical-leaves-fruit-background_1024.jpg");
+      images.push("https://foxinsox.github.io/threevision/example/bird-vintage-background-1547020715cla_1024.jpg");
+      images.push("https://foxinsox.github.io/threevision/example/color-4057072_1024.jpg");
+      images.push("https://foxinsox.github.io/threevision/example/flowers-pattern-design-illustration_1024.jpg");
+      images.push("https://foxinsox.github.io/threevision/example/illustration-3270278_1024.jpg");
+      images.push("https://foxinsox.github.io/threevision/example/illustration-4643567_1024.jpg");
+      images.forEach((el) => {
+        const texture = new THREE.TextureLoader().load(el);
+        materials.push(new THREE.MeshBasicMaterial({ map: texture }));
+      });
+
+      // Prepare some random colors as textures
+      /*const colors = [];
+      const colorsCount = 10
+      for (let i = 0; i < colorsCount; i++) {
+        colors.push(new THREE.Color(`hsl(${i * 360 / colorsCount}, 75%, 50%)`));
+      }
+      colors.forEach((el) => {
+        materials.push(new THREE.MeshBasicMaterial({ color: el }));
+      });*/
+
+
+      // Prepare some videos as textures
+      const videos = [];
+      videos.push("https://foxinsox.github.io/threevision/example/video1.mp4"); //Video by Stef Franken from Pexels
+      videos.push("https://foxinsox.github.io/threevision/example/video2.mp4"); //Video by Dapur Melodi from Pexels
+      videos.push("https://foxinsox.github.io/threevision/example/video3.mp4"); //Video by Vitaly Vlasov from Pexels
+      videos.forEach((vid) => {
+        // create the video element
+        const _id = vid.split('/')[vid.split('/').length - 1].split('.')[0];
+        const video = document.createElement('video')
+        video.setAttribute('crossorigin', 'anonymous')
+        video.setAttribute('id', _id);
+        video.src = vid;
+        video.muted = true;
+        video.loop = true;
+        video.autoplay = true;
+        video.load();
+
+        loadingTextures.push(_id);
+        const loadingText = document.getElementById('loadingText');
+        loadingText.innerHTML = `Loading...\n${loadingTextures}`;
+        console.log(`loading: ${loadingTextures}`);
+        video.addEventListener('loadeddata', function () {
+          loadingTextures = loadingTextures.filter(element => element !== _id);
+          if (loadingTextures.length === 0) {
+            const loader = document.getElementById('loadingDiv');
+            loader.style.display = "none";
+            const threeJS = document.getElementById('container');
+            threeJS.style.display = "block";
+          }
+        }, false);
+        video.play();
+        const videoTexture = new THREE.VideoTexture(video);
+        videoTexture.minFilter = THREE.LinearFilter;
+        videoTexture.magFilter = THREE.LinearFilter;
+        videoTexture.format = THREE.RGBFormat;
+        materials.push(new THREE.MeshBasicMaterial({ map: videoTexture }));
+      });
+
+      shuffle(materials);
+      return materials;
+    }
+
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i -= 1) {
         const j = Math.floor(Math.random() * i)
@@ -266,9 +349,7 @@
       return array;
     }
 
-    window.addEventListener('mousemove', onMouseMove, false);
-    window.addEventListener('click', onMouseClicked, false);
-    window.addEventListener('touchstart', onMouseClicked, false);
+
 
   </script>
 </body>
