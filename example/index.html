@@ -97,8 +97,7 @@
     videos.push("https://foxinsox.github.io/threevision/example/video3.mp4"); //Video by Vitaly Vlasov from Pexels
     videos.forEach((vid) => {
       // create the video element
-      const elementId = video.split('/')[video.split('/').length-1].split('.')[0];
-      const video = document.createElement(elementId);
+      const video = document.createElement('video');
       video.setAttribute('crossorigin', 'anonymous');
       video.src = vid;
       video.muted = true;
