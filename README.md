@@ -64,7 +64,7 @@ let stepCounter = setInterval(() => {threevision.step = step; step += 1;}, 2000)
 
 | Property         | Description                                                                                                                   | Default |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------- | :-----: |
-| <b>materials</b> | Array with containing Three.js textures. This is what will be displayed. See the example for how to display images or colors. |         |
+| <b>materials</b> | Array with containing Three.js textures. This is what will be displayed. See the example for how to display images, videos or colors. |         |
 | <b>width</b>     | The width of the threevision display.                                                                                         |  `100`  |
 | <b>height</b>    | The height of the threevision display.                                                                                        |  `100`  |
 | <b>step</b>      | Index of the material to be facing frontwards. <b>Changing step makes the threevision display rotate.</b>                    |    `0`    |

@@ -31,7 +31,7 @@
     let step = 0;
 
     // Setup renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, depth: false });
     renderer.setSize(window.innerWidth, window.innerHeight);
     const rendererSize = new THREE.Vector2;
     renderer.getSize(rendererSize);
@@ -39,6 +39,8 @@
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.getElementById('container').appendChild(renderer.domElement);
 
+    // This array will hold all textures of our threevision
+    const materials = [];
 
     // Prepare some nice images as textures
     const images = [];
@@ -48,25 +50,43 @@
     images.push("https://foxinsox.github.io/threevision/example/flowers-pattern-design-illustration_1024.jpg");
     images.push("https://foxinsox.github.io/threevision/example/illustration-3270278_1024.jpg");
     images.push("https://foxinsox.github.io/threevision/example/illustration-4643567_1024.jpg");
-
-    // Prepare some random colors as textures
-    const colors = [];
-    const colorsCount = 10
-    for (let i = 0; i < colorsCount; i++) {
-      colors.push(new THREE.Color(`hsl(${i * 360 / colorsCount}, 75%, 50%)`));
-    }
-
-    // Lets create the actual textures from images and colors
-    const materials = [];
     images.forEach((el) => {
       const texture = new THREE.TextureLoader().load(el);
       materials.push(new THREE.MeshBasicMaterial({ map: texture }));
     });
+
+    // Prepare some random colors as textures
+    /*const colors = [];
+    const colorsCount = 3
+    for (let i = 0; i < colorsCount; i++) {
+      colors.push(new THREE.Color(`hsl(${i * 360 / colorsCount}, 75%, 50%)`));
+    }
     colors.forEach((el) => {
       materials.push(new THREE.MeshBasicMaterial({ color: el }));
+    });*/
+
+
+    // Prepare some videos as textures
+    const videos = [];
+    videos.push("https://foxinsox.github.io/threevision/example/video.mp4");
+    videos.forEach((vid) => {
+      // create the video element
+      const video = document.createElement('video');
+      video.setAttribute('crossorigin', 'anonymous');
+      video.src = vid;
+      video.muted = true;
+      video.loop = true;
+      video.load();
+      video.play();
+      const videoTexture = new THREE.VideoTexture(video);
+      videoTexture.minFilter = THREE.LinearFilter;
+      videoTexture.magFilter = THREE.LinearFilter;
+      videoTexture.format = THREE.RGBFormat;
+      materials.push(new THREE.MeshBasicMaterial({ map: videoTexture }));
     });
 
-    //and shuffle
+
+    //shuffle all materials
     shuffle(materials);
 
     // Setup scene

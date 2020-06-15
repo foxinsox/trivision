@@ -10,6 +10,7 @@ import {
   Raycaster,
 } from 'three';
 import Prism from './prism';
+import WaveAnimation from './waveAnimation';
 
 const three = typeof window !== 'undefined' && window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
@@ -43,6 +44,8 @@ export default class extends three.Group {
     this._previousMousePos = new three.Vector2(0, 0);
     this._previousIntersectsUuid = 0;
     this._raycaster = new three.Raycaster();
+    this._waveAnimations = [];
+    this._previousDelta = 0;
     if (!this._materials || this._materials.length === 0) this._materials = [new three.Color(0xaaaaaa)];
     this._init();
   }
@@ -124,7 +127,7 @@ export default class extends three.Group {
     let delta;
     if (this.vertical) delta = deltaMousePos.x;
     else delta = deltaMousePos.y;
-    if (!this._readyToRefresh && delta !== 0) {
+    if (!this._readyToRefresh && Math.abs(delta) >= 0.01) {
       // update the picking ray with the camera and mousePos position
       this._raycaster.setFromCamera(currentMousePos, camera);
       // calculate group (=trivison) objects intersecting the picking ray
@@ -134,21 +137,40 @@ export default class extends three.Group {
           const { uuid } = intersects[i].object;
           const prism = this.children.find((obj) => obj.uuid === uuid);
           if (prism) {
-            if (this._previousIntersectsUuid !== uuid) {
-              prism.step += (delta >= 0 ? 1 : -1);
+            // act only if mouse/tap is on a different prism than before of if delta direction has changed
+            if (this._previousIntersectsUuid !== uuid || (delta >= 0 !== this._previousDelta >= 0)) {
+              const nextStep = prism.step + (delta >= 0 ? 1 : -1);
+              this._waveAnimations.push(new WaveAnimation(uuid, this.children, nextStep, delta));
+              // limit amount of queued wave animations in order to make movement not appear too chaotic
+              if (this._waveAnimations.length > 2) this._waveAnimations.shift();
+              // prism.step += (delta >= 0 ? 1 : -1);
             }
             this._previousIntersectsUuid = uuid;
           }
         }
       }
+      this._previousDelta = delta;
       this._previousMousePos = currentMousePos;
     }
   }
 
+  _updateWaveAnimations() {
+    // console.log("animations length", this._waveAnimations.length);
+    let _currentPrism;
+    for (let i = this._waveAnimations.length - 1; i >= 0; i -= 1) {
+      if ((_currentPrism && this._waveAnimations[i].queueHead && this._waveAnimations[i].queueHead.uuid === _currentPrism.uuid) || this._waveAnimations[i].queueHead === undefined) {
+        this._waveAnimations.splice(i, 1);
+      } else {
+        // console.log(`totalAnimations: ${this._waveAnimations.length} updating waveAnim ${i}`);
+        _currentPrism = this._waveAnimations[i].update(this._clock.getDelta());
+      }
+    }
+  }
+
   _updatePrismsStep() {
-    // set new step rotation
-    // console.log(this._step);
+    // set new global step rotation for all prisms
     if (this._step !== this._previousStep) {
+      this._waveAnimations = [];
       this.children.map((p) => {
         const prism = p;
         prism.step = this._step;
@@ -178,6 +200,7 @@ export default class extends three.Group {
     if (mousePos && scene && camera && this.mouseOverEffect) {
       this._applyMouseOverEffect(scene, camera, mousePos);
     }
+    this._updateWaveAnimations();
     this._updatePrismsStep();
     this._updatePrismsRotation();
   }
