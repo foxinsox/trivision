@@ -108,3 +108,6 @@ dist
 
 # Imagefiles from examples directory
 example/*.jpg
+
+# Videofiles from examples directory
+example/*.mp4
