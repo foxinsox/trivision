@@ -47,7 +47,7 @@
       transform: translate(-50%, -50%);
       font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
       font-size: large;">
-      Click to shift and align. Drag to change perspective.</p>
+      Click to shift and align. Drag to change perspective. Scroll to zoom.</p>
   </div>
 
   <script>
@@ -122,20 +122,20 @@
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     camera.lookAt(0, 0, 0);
-    camera.position.z = 480;
+    camera.position.z = 200;
 
 
 
     // Optional: Create a light and shadow layer
     var light = new THREE.SpotLight(0xcccccc);
-    light.position.copy(camera.position);
     light.castShadow = true;            // default false
     light.shadow.mapSize.width = 4096;
     light.shadow.mapSize.height = 4096;
     light.shadow.camera.near = 0.5;       // default
     light.shadow.camera.far = 1000
-    light.position.x -= 80;
-    light.position.y += 100;
+    light.position.x = -80;
+    light.position.y = 100;
+    light.position.z = 480;
     scene.add(light);
 
     const planeGeometry = new THREE.PlaneBufferGeometry(innerWidth, innerHeight);
@@ -155,6 +155,7 @@
     threevision.height = Math.min(window.innerHeight, window.innerWidth) * 0.8;
     threevision.width = threevision.height; //make it square
     threevision.mouseOverEffect = true;
+    threevision.vertical = true;
     scene.add(threevision);
 
 
@@ -163,7 +164,7 @@
       this.prismCount = 12;
       this.easing = 0.1;
       this.speed = 5;
-      this.vertical = false;
+      this.vertical = true;
       this.mouseOverEffect = true;
       this.shadows = true;
       this.background = function () {
