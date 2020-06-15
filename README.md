@@ -9,7 +9,7 @@ An interactive trivision display for [three.js]("https://threejs.org").
 
 <b>[Demo](https://foxinsox.github.io/threevision/example/)</b>
 
-Based on traditional [trivision billboards](https://en.wikipedia.org/wiki/Trivision), but this version allows for more than three different images to be displayed.
+Based on traditional [trivision billboards](https://en.wikipedia.org/wiki/Trivision), but this version allows for more than three different images or even videos to be displayed.
 For an example integration in three.js, check out the [demo sourcecode](./example/index.html) from the examples directory.
 
 ![trivision-image](https://foxinsox.github.io/threevision/preview2.jpg)
