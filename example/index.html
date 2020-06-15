@@ -2,8 +2,16 @@
   <style>
     body {
       margin: 0;
+      background-color: white;
     }
   </style>
+
+  <meta property="og:title" content="threevision" />
+  <meta property="og:type" content="WebGL interactive display demo" />
+  <meta property="og:url" content="https://foxinsox.github.io/threevision/example/index.html" />
+  <meta property="og:image" content="https://foxinsox.github.io/threevision/preview2.jpg" />
+  <meta property="og:description" content="A interactive trivision display for three.js (WebGL)" />
+
   <script src="https://unpkg.com/three"></script>
   <script src='https://unpkg.com/dat.gui'></script>
   <script src='https://mrdoob.github.io/stats.js/build/stats.min.js'></script>
@@ -142,6 +150,13 @@
       this.vertical = false;
       this.mouseOverEffect = true;
       this.shadows = true;
+      this.background = function () {
+        if(document.body.style.backgroundColor === 'white' || document.body.style.backgroundColor === ''){
+          document.body.style.backgroundColor = 'black'
+        }else{
+          document.body.style.backgroundColor = 'white'
+        }
+      }
     }
 
     var gui = new dat.GUI();
@@ -151,6 +166,7 @@
     var vertical = gui.add(controls, 'vertical', false, true).listen();
     var mouseOverEffect = gui.add(controls, 'mouseOverEffect', false, true).listen();
     var shadows = gui.add(controls, 'shadows', false, true).listen();
+    var background = gui.add(controls, 'background').listen().name("ToggleBackground");
 
     prismCount.onChange(function (value) {
       threevision.prismCount = Math.round(value);
