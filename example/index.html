@@ -5,12 +5,28 @@
       background-color: white;
     }
   </style>
+  <title>Threevision</title>
 
-  <meta property="og:title" content="threevision" />
-  <meta property="og:type" content="WebGL interactive display demo" />
-  <meta property="og:url" content="https://foxinsox.github.io/threevision/example/index.html" />
-  <meta property="og:image" content="https://foxinsox.github.io/threevision/preview2.jpg" />
-  <meta property="og:description" content="A interactive trivision display for three.js (WebGL)" />
+  <meta name="title" content="Threevision">
+  <meta name="description"
+    content="A fully animated and interactive trivision image and video display for three.js (WebGL) ">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://foxinsox.github.io/threevision/example/index.html">
+  <meta property="og:title" content="Threevision">
+  <meta property="og:description"
+    content="A fully animated and interactive trivision image and video display for three.js (WebGL) ">
+  <meta property="og:image" content="https://foxinsox.github.io/threevision/preview2.jpg">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://foxinsox.github.io/threevision/example/index.html">
+  <meta property="twitter:title" content="Threevision">
+  <meta property="twitter:description"
+    content="A fully animated and interactive trivision image and video display for three.js (WebGL) ">
+  <meta property="twitter:image" content="https://foxinsox.github.io/threevision/preview2.jpg">
+
 
   <script src="https://unpkg.com/three"></script>
   <script src='https://unpkg.com/dat.gui'></script>
@@ -151,9 +167,9 @@
       this.mouseOverEffect = true;
       this.shadows = true;
       this.background = function () {
-        if(document.body.style.backgroundColor === 'white' || document.body.style.backgroundColor === ''){
+        if (document.body.style.backgroundColor === 'white' || document.body.style.backgroundColor === '') {
           document.body.style.backgroundColor = 'black'
-        }else{
+        } else {
           document.body.style.backgroundColor = 'white'
         }
       }
