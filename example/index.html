@@ -170,13 +170,7 @@
       this.vertical = true;
       this.mouseOverEffect = true;
       this.shadows = true;
-      this.background = function () {
-        if (document.body.style.backgroundColor === 'white' || document.body.style.backgroundColor === '') {
-          document.body.style.backgroundColor = 'black'
-        } else {
-          document.body.style.backgroundColor = 'white'
-        }
-      }
+      this.darkmode = false;
     }
 
     var gui = new dat.GUI();
@@ -186,7 +180,7 @@
     var vertical = gui.add(controls, 'vertical', false, true).listen();
     var mouseOverEffect = gui.add(controls, 'mouseOverEffect', false, true).listen();
     var shadows = gui.add(controls, 'shadows', false, true).listen();
-    var background = gui.add(controls, 'background').listen().name("ToggleBackground");
+    var darkmode = gui.add(controls, 'darkmode', false, true).listen();
 
     prismCount.onChange(function (value) {
       threevision.prismCount = Math.round(value);
@@ -210,6 +204,14 @@
 
     shadows.onChange(function (value) {
       threevision.shadows = value;
+    });
+
+    darkmode.onChange(function (value){
+      if (value && (document.body.style.backgroundColor === 'white' || document.body.style.backgroundColor === '')) {
+          document.body.style.backgroundColor = 'black'
+        } else {
+          document.body.style.backgroundColor = 'white'
+        }
     });
 
 
