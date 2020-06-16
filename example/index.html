@@ -64,8 +64,8 @@
   <script src='https://unpkg.com/dat.gui'></script>
   <script src='https://mrdoob.github.io/stats.js/build/stats.min.js'></script>
   <script src='https://cdn.jsdelivr.net/npm/three@0.101.1/examples/js/controls/OrbitControls.js'></script>
-  <script src="https://unpkg.com/threevision"></script>
-  <!-- <script src="../dist/threevision.min.js"></script> -->
+  <!-- <script src="https://unpkg.com/threevision"></script> -->
+  <script src="../dist/threevision.min.js"></script>
 </head>
 
 <body>
@@ -145,12 +145,16 @@
     /**
      *    THREEVISION
      */
-    const threevision = new Threevision();
-    threevision.materials = prepareMaterials();
-    threevision.height = Math.min(window.innerHeight, window.innerWidth) * 0.8;
-    threevision.width = threevision.height; //make it square
-    threevision.mouseOverEffect = true;
-    threevision.vertical = false;
+
+    const threevisionConfig = {
+      materials:  prepareMaterials(),
+      height: Math.round(Math.min(window.innerHeight, window.innerWidth) * 0.8),
+      width: Math.round(Math.min(window.innerHeight, window.innerWidth) * 0.8),
+      mouseOverEffect: true,
+      vertical: false
+    }
+    const materials = prepareMaterials();
+    const threevision = new Threevision(threevisionConfig);
     scene.add(threevision);
 
 
@@ -334,7 +338,7 @@
         loadingVideoTextures.push(_id);
         // const loadingText = document.getElementById('loadingText');
         // loadingText.innerHTML = "Loading Textures...";
-        console.log(`loading: ${loadingVideoTextures}`);
+        // console.log(`loading: ${loadingVideoTextures}`);
         video.addEventListener('loadeddata', function () {
           loadingVideoTextures = loadingVideoTextures.filter(element => element !== _id);
           updateLoadingState();

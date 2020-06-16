@@ -26,18 +26,19 @@ const three = typeof window !== 'undefined' && window.THREE
 
 
 export default class extends three.Group {
-  constructor(materials, width = 100, height = 100) {
+  constructor(parameters) {
+    parameters = parameters || {};
     super();
-    this._materials = materials;
-    this._width = width;
-    this._height = height;
-    this._step = 0;
-    this._easing = 0.05;
-    this._prismCount = 12;
-    this._speed = 1;
-    this._shadows = true;
-    this._vertical = false;
-    this._mouseOverEffect = false;
+    this._materials = parameters.materials !== undefined ? parameters.materials : [new three.Color(0xaaaaaa)];
+    this._width = parameters.width !== undefined ? parameters.width : 100;
+    this._height = parameters.height !== undefined ? parameters.height : 100;
+    this._step = parameters.step !== undefined ? parameters.step : 0;
+    this._easing = parameters.easing !== undefined ? parameters.easing : 0.05;
+    this._prismCount = parameters.prismCount !== undefined ? parameters.prismCount : 12;
+    this._speed = parameters.speed !== undefined ? parameters.speed : 1;
+    this._shadows = parameters.shadows !== undefined ? parameters.shadows : true;
+    this._vertical = parameters.vertical !== undefined ? parameters.vertical : false;
+    this._mouseOverEffect = parameters.mouseOverEffect !== undefined ? parameters.mouseOverEffect : false;
     this._readyToRefresh = false;
     this._clock = new three.Clock();
     this._previousStep = 0;
@@ -46,7 +47,7 @@ export default class extends three.Group {
     this._raycaster = new three.Raycaster();
     this._waveAnimations = [];
     this._previousDelta = 0;
-    if (!this._materials || this._materials.length === 0) this._materials = [new three.Color(0xaaaaaa)];
+    // if (!this._materials || this._materials.length === 0) this._materials = [new three.Color(0xaaaaaa)];
     this._init();
   }
 

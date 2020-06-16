@@ -40,7 +40,7 @@ var color = new THREE.Color("hsl(100, 75%, 50%)");
 materials.push(new THREE.MeshBasicMaterial({ color: color }));
 
 //create a threevision
-var threevision = new Threevision(materials,100,100);
+var threevision = new Threevision({materials, width: 100, height: 100});
 var myScene = new THREE.Scene();
 myScene.add(threevision);
 
