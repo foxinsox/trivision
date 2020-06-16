@@ -19,7 +19,7 @@
     .loader {
       border: 16px solid #f3f3f3;
       /* Light grey */
-      border-top: 16px solid #3498db;
+      border-top: 16px solid #000000;
       /* Blue */
       border-radius: 50%;
       width: 120px;
@@ -89,7 +89,8 @@
   <script>
     const mouse = new THREE.Vector2();
     let step = 0;
-    let loadingTextures = [];
+    let loadingVideoTextures = [];
+    let imageTexturesLoaded = false;
 
 
     /**
@@ -136,7 +137,6 @@
     plane.position.z = -50;
     plane.receiveShadow = true;
     scene.add(plane);
-
 
 
 
@@ -272,6 +272,9 @@
      */
     function prepareMaterials() {
       const materials = [];
+      THREE.DefaultLoadingManager.onLoad = function ( ) {
+      imageTexturesLoaded = true;
+    };
 
       // Prepare some nice images as textures
       const images = [];
@@ -314,13 +317,13 @@
         video.autoplay = true;
         video.load();
 
-        loadingTextures.push(_id);
-        const loadingText = document.getElementById('loadingText');
-        loadingText.innerHTML = `Loading...\n${loadingTextures}`;
-        console.log(`loading: ${loadingTextures}`);
+        loadingVideoTextures.push(_id);
+        // const loadingText = document.getElementById('loadingText');
+        // loadingText.innerHTML = "Loading Textures...";
+        console.log(`loading: ${loadingVideoTextures}`);
         video.addEventListener('loadeddata', function () {
-          loadingTextures = loadingTextures.filter(element => element !== _id);
-          if (loadingTextures.length === 0) {
+          loadingVideoTextures = loadingVideoTextures.filter(element => element !== _id);
+          if (loadingVideoTextures.length === 0) {
             const loader = document.getElementById('loadingDiv');
             loader.style.display = "none";
             const threeJS = document.getElementById('container');
@@ -333,6 +336,11 @@
         videoTexture.magFilter = THREE.LinearFilter;
         videoTexture.format = THREE.RGBFormat;
         materials.push(new THREE.MeshBasicMaterial({ map: videoTexture }));
+        setInterval( function () {
+          if ( video.readyState >= video.HAVE_CURRENT_DATA ) {
+            videoTexture.needsUpdate = true;
+          }else videoTexture.needsUpdate = false;
+        }, 1000 / 24 );
       });
 
       shuffle(materials);
