@@ -273,7 +273,11 @@
     window.addEventListener('mousemove', onMouseMove, false);
     window.addEventListener('click', onMouseClicked, false);
     window.addEventListener('touchstart', onMouseClicked, false);
-
+    document.onreadystatechange = () => {
+      if (document.readyState === 'complete') {
+        updateLoadingState();
+      }
+    };
 
     /**
      *    THREE.JS MATERIAL LOADERS FOR OUR THREEVISION
@@ -311,9 +315,9 @@
 
       // Prepare some videos as textures
       const videos = [];
-      videos.push("https://foxinsox.github.io/threevision/example/video1_512.mp4"); //Video by Stef Franken from Pexels
-      videos.push("https://foxinsox.github.io/threevision/example/video2_512.mp4"); //Video by Dapur Melodi from Pexels
-      videos.push("https://foxinsox.github.io/threevision/example/video3_512.mp4"); //Video by Vitaly Vlasov from Pexels
+      videos.push("https://foxinsox.github.io/threevision/example/video1_720.mp4"); //Video by Stef Franken from Pexels
+      videos.push("https://foxinsox.github.io/threevision/example/video2_720.mp4"); //Video by Dapur Melodi from Pexels
+      videos.push("https://foxinsox.github.io/threevision/example/video3_720.mp4"); //Video by Vitaly Vlasov from Pexels
       videos.forEach((vid) => {
         // create the video element
         const _id = vid.split('/')[vid.split('/').length - 1].split('.')[0];
@@ -344,7 +348,7 @@
         videoTexture.magFilter = THREE.LinearFilter;
         videoTexture.format = THREE.RGBFormat;
         materials.push(new THREE.MeshBasicMaterial({ map: videoTexture }));
-        
+
         //video performance tuning: avoid updating texture on each render cycle
         setInterval(function () {
           if (video.readyState >= video.HAVE_CURRENT_DATA) {
@@ -368,7 +372,7 @@
     }
 
     function updateLoadingState() {
-      if (loadingVideoTextures.length === 0 && imageTexturesLoaded) finishedLoading = true;
+      if (loadingVideoTextures.length === 0 && imageTexturesLoaded && document.readyState === 'complete') finishedLoading = true;
       else finishedLoading = false;
     }
 
