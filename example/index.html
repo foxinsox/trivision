@@ -150,7 +150,7 @@
     threevision.height = Math.min(window.innerHeight, window.innerWidth) * 0.8;
     threevision.width = threevision.height; //make it square
     threevision.mouseOverEffect = true;
-    threevision.vertical = true;
+    threevision.vertical = false;
     scene.add(threevision);
 
 
@@ -162,8 +162,8 @@
     var controls = new function () {
       this.prismCount = 12;
       this.easing = 0.1;
-      this.speed = 5;
-      this.vertical = true;
+      this.speed = 1;
+      this.vertical = false;
       this.mouseOverEffect = true;
       this.shadows = true;
       this.darkmode = false;
@@ -171,7 +171,7 @@
 
     var gui = new dat.GUI();
     var prismCount = gui.add(controls, 'prismCount', 1, 50).listen();
-    var speed = gui.add(controls, 'speed', 1, 10).listen();
+    var speed = gui.add(controls, 'speed', 0.1, 3).listen();
     var easing = gui.add(controls, 'easing', 0.01, 0.5).listen();
     var vertical = gui.add(controls, 'vertical', false, true).listen();
     var mouseOverEffect = gui.add(controls, 'mouseOverEffect', false, true).listen();

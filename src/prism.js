@@ -161,18 +161,9 @@ export default class Prism extends three.Mesh {
 
   update(maxRotation, easing) {
     const deltaRotationZ = this.rotation.z - Math.round(this.step) * this._RADIANS_PER_STEP;
-    // this._motion = Math.min(deltaRotationZ * easing, maxRotation);
-    // this._motion = Math.min(Math.abs(deltaRotationZ * easing), maxRotation);
-    this._motion = Math.abs(deltaRotationZ * easing);
-    if (Math.abs(deltaRotationZ) < 0.001) return;
-    // if (deltaRotationZ > 0) this.rotation.z += Math.min(deltaRotationZ * easing, maxRotation);
-    // else this.rotation.z -= Math.min(deltaRotationZ * easing, maxRotation);
-    // console.log(`delta is positive: ${deltaRotationZ >= 0} maxRotation = ${maxRotation} taking: ${Math.min(deltaRotationZ * easing, maxRotation)}`);
-    // this.rotation.z -= Math.min(deltaRotationZ * easing, maxRotation);
+    this._motion = Math.min(Math.abs(deltaRotationZ * easing), maxRotation);
     if (deltaRotationZ > 0) this.rotation.z -= this._motion;
     else this.rotation.z += this._motion;
-
-    // this.rotation.z -= deltaRotationZ * easing;
 
     // if previous rot exists and if previous rot was in different angle segment than current: change texture
     if (this._previousRotationAngle) {

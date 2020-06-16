@@ -34,7 +34,7 @@ export default class extends three.Group {
     this._step = 0;
     this._easing = 0.05;
     this._prismCount = 12;
-    this._speed = 4;
+    this._speed = 1;
     this._shadows = true;
     this._vertical = false;
     this._mouseOverEffect = false;
@@ -143,7 +143,6 @@ export default class extends three.Group {
               this._waveAnimations.push(new WaveAnimation(uuid, this.children, nextStep, delta));
               // limit amount of queued wave animations in order to make movement not appear too chaotic
               if (this._waveAnimations.length > 2) this._waveAnimations.shift();
-              // prism.step += (delta >= 0 ? 1 : -1);
             }
             this._previousIntersectsUuid = uuid;
           }
@@ -183,7 +182,7 @@ export default class extends three.Group {
 
   _updatePrismsRotation() {
     let totalMovement = 0;
-    const maxRotation = this.speed * this._clock.getDelta();
+    const maxRotation = this.speed / 10; // * this._clock.getDelta();
 
     this.children.map((prism) => {
       totalMovement += prism.motion;

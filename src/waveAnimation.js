@@ -32,6 +32,9 @@ export default class WaveAnimation {
     this._time += clockDelta * Math.abs(this._speed * 500);
     let currentPrism = this.queueHead;
     if (this._time >= 0.5) {
+      // apply some easing to wave, relative to prism amount
+      this._speed *= 1 - 1 / this._prisms.length / 1.4;
+
       currentPrism = this._prisms.shift();
       if (currentPrism) currentPrism.step = this._step;
       this._time = 0;

@@ -9,7 +9,7 @@ An interactive trivision display for [three.js]("https://threejs.org").
 
 <b>[Demo](https://foxinsox.github.io/threevision/example/)</b>
 
-Based on traditional [trivision billboards](https://en.wikipedia.org/wiki/Trivision), but this version allows for more than three different images or even videos to be displayed.
+Based on traditional [trivision billboards](https://en.wikipedia.org/wiki/Trivision), but this digital version allows for more than three different images or even videos to be displayed. If more than three textures are supplied, the texture shifting takes place on the backside of the display during the prisms rotation.
 For an example integration in three.js, check out the [demo sourcecode](./example/index.html) from the examples directory.
 
 ![trivision-image](https://foxinsox.github.io/threevision/preview2.jpg)
@@ -70,8 +70,8 @@ let stepCounter = setInterval(() => {threevision.step = step; step += 1;}, 2000)
 | <b>step</b>      | Index of the material to be facing frontwards. <b>Changing step makes the threevision display rotate.</b>                    |    `0`    |
 | <b>prismCount</b>      | The amount of prism elements of the threevision display.                                                                      |  `24`   |
 | <b>vertical</b>        | The orientation of the prisms.                                                                                                | `false` |
-| <b>easing</b>          | The easing of the prisms rotation.                                                                                            | `0.05`  |
-| <b>speed</b>           | The speed of the prisms rotation.                                                                                             |   `4`   |
+| <b>easing</b>          | The easing of the prisms rotations.                                                                                            | `0.05`  |
+| <b>speed</b>           | The max speed of the prisms rotations.                                                                                             |   `1`   |
 | <b>mouseOverEffect</b> | Applies a mouse-over effect that adds a wave-like animation.                                                 | `false` |
 | <b>shadows</b>         | If the THREE.Scene is prepared for shadows, the threevision displays shadow behavior can be manually switched on/off.         | `true`  |
 
