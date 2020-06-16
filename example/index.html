@@ -10,8 +10,21 @@
       transition: all 0.3s ease;
     }
 
+    #instructions {
+      position: fixed;
+      bottom: 2rem;
+      left: 30%;
+      z-index: 10;
+      width: 40%;
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.5);
+      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      font-size: large;
+      border-radius: 20px;
+    }
+
     #loadingDiv {
-      margin: 20% auto;
+      margin: 50% auto;
       width: 10%;
       text-align: center;
     }
@@ -69,27 +82,23 @@
 </head>
 
 <body>
+  <p id="instructions">
+    Click to shift and align. Drag to change perspective. Scroll to zoom.</p>
   <div id="loadingDiv">
     <div class="loader" id="videoTextureLoader"></div>
     <p id="loadingText"></p>
   </div>
   <div id="container" style="display: none;">
-    <p style="
-      background-color: rgba(255,255,255,0.5);
-      padding: 1rem;
-      text-align: center;
-      vertical-align: middle;
-      position: absolute;
-      left: 50%;
-      margin-right: -50%;
-      transform: translate(-50%, -50%);
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-      font-size: large;">
-      Click to shift and align. Drag to change perspective. Scroll to zoom.</p>
   </div>
 
 
   <script>
+    const windowWidth = window.screen.width < window.outerWidth ?
+      window.screen.width : window.outerWidth;
+
+    if (windowWidth < 800) {
+      document.getElementById("instructions").innerHTML = "Tap to shift and align.<br>Drag to change camera.<br>Pinch/Spread to zoom"
+    }
     const mouse = new THREE.Vector2();
     let step = 0;
     let loadingVideoTextures = [];
@@ -120,7 +129,7 @@
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     camera.lookAt(0, 0, 0);
-    camera.position.z = 200;
+    camera.position.z = 500 / windowWidth * 480;
 
     // Optional: Create a light for shadow casting
     var light = new THREE.SpotLight(0xcccccc);
@@ -150,7 +159,7 @@
      */
 
     const threevisionConfig = {
-      materials:  prepareMaterials(),
+      materials: prepareMaterials(),
       height: Math.round(Math.min(window.innerHeight, window.innerWidth) * 0.8),
       width: Math.round(Math.min(window.innerHeight, window.innerWidth) * 0.8),
       mouseOverEffect: true,
