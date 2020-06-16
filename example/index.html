@@ -6,7 +6,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     }
 
-    #container{
+    #container {
       transition: all 0.3s ease;
     }
 
@@ -91,6 +91,8 @@
     let step = 0;
     let loadingVideoTextures = [];
     let imageTexturesLoaded = false;
+    let finishedLoading = false;
+    const videoElements = [];
 
 
     /**
@@ -233,13 +235,21 @@
      */
     (function animate() { // IIFE
       // Frame cycle
-      stats.begin();
-      controls.update();
-      light.lookAt(camera.position);
-      plane.lookAt(camera.position);
-      threevision.update(scene, camera, mouse);
-      renderer.render(scene, camera);
-      stats.end();
+      if (finishedLoading) {
+        const loader = document.getElementById('loadingDiv');
+        loader.style.display = "none";
+        const threeJS = document.getElementById('container');
+        threeJS.style.display = "block";
+
+
+        stats.begin();
+        controls.update();
+        light.lookAt(camera.position);
+        plane.lookAt(camera.position);
+        threevision.update(scene, camera, mouse);
+        renderer.render(scene, camera);
+        stats.end();
+      }
       requestAnimationFrame(animate);
     })();
 
@@ -265,16 +275,15 @@
     window.addEventListener('touchstart', onMouseClicked, false);
 
 
-
-
     /**
      *    THREE.JS MATERIAL LOADERS FOR OUR THREEVISION
      */
     function prepareMaterials() {
       const materials = [];
-      THREE.DefaultLoadingManager.onLoad = function ( ) {
-      imageTexturesLoaded = true;
-    };
+      THREE.DefaultLoadingManager.onLoad = function () {
+        imageTexturesLoaded = true;
+        updateLoadingState();
+      };
 
       // Prepare some nice images as textures
       const images = [];
@@ -315,6 +324,7 @@
         video.muted = true;
         video.loop = true;
         video.autoplay = true;
+        video.playsInline = true;
         video.load();
 
         loadingVideoTextures.push(_id);
@@ -323,24 +333,24 @@
         console.log(`loading: ${loadingVideoTextures}`);
         video.addEventListener('loadeddata', function () {
           loadingVideoTextures = loadingVideoTextures.filter(element => element !== _id);
-          if (loadingVideoTextures.length === 0) {
-            const loader = document.getElementById('loadingDiv');
-            loader.style.display = "none";
-            const threeJS = document.getElementById('container');
-            threeJS.style.display = "block";
-          }
+          updateLoadingState();
         }, false);
         video.play();
+
+        videoElements.push(video);
+
         const videoTexture = new THREE.VideoTexture(video);
         videoTexture.minFilter = THREE.LinearFilter;
         videoTexture.magFilter = THREE.LinearFilter;
         videoTexture.format = THREE.RGBFormat;
         materials.push(new THREE.MeshBasicMaterial({ map: videoTexture }));
-        setInterval( function () {
-          if ( video.readyState >= video.HAVE_CURRENT_DATA ) {
+        
+        //video performance tuning: avoid updating texture on each render cycle
+        setInterval(function () {
+          if (video.readyState >= video.HAVE_CURRENT_DATA) {
             videoTexture.needsUpdate = true;
           }
-        }, 1000 / 24 );
+        }, 1000 / 24);
       });
 
       shuffle(materials);
@@ -355,6 +365,11 @@
         array[j] = temp
       }
       return array;
+    }
+
+    function updateLoadingState() {
+      if (loadingVideoTextures.length === 0 && imageTexturesLoaded) finishedLoading = true;
+      else finishedLoading = false;
     }
 
 
