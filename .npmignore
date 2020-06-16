@@ -106,8 +106,8 @@ dist
 # VSCode
 .vscode/
 
-# Imagefiles from examples directory
-example/*.jpg
+# Imagefiles
+*.jpg
 
-# Videofiles from examples directory
-example/*.mp4
+# Videofiles
+*.mp4
