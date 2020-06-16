@@ -302,9 +302,9 @@
 
       // Prepare some videos as textures
       const videos = [];
-      videos.push("https://foxinsox.github.io/threevision/example/video1.mp4"); //Video by Stef Franken from Pexels
-      videos.push("https://foxinsox.github.io/threevision/example/video2.mp4"); //Video by Dapur Melodi from Pexels
-      videos.push("https://foxinsox.github.io/threevision/example/video3.mp4"); //Video by Vitaly Vlasov from Pexels
+      videos.push("https://foxinsox.github.io/threevision/example/video1_512.mp4"); //Video by Stef Franken from Pexels
+      videos.push("https://foxinsox.github.io/threevision/example/video2_512.mp4"); //Video by Dapur Melodi from Pexels
+      videos.push("https://foxinsox.github.io/threevision/example/video3_512.mp4"); //Video by Vitaly Vlasov from Pexels
       videos.forEach((vid) => {
         // create the video element
         const _id = vid.split('/')[vid.split('/').length - 1].split('.')[0];
@@ -339,7 +339,7 @@
         setInterval( function () {
           if ( video.readyState >= video.HAVE_CURRENT_DATA ) {
             videoTexture.needsUpdate = true;
-          }else videoTexture.needsUpdate = false;
+          }
         }, 1000 / 24 );
       });
 
