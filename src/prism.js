@@ -223,9 +223,9 @@ export default class Prism extends three.Mesh {
   }
 
   static _getAngleSection(rotation) {
-    const angle = rotation % (2 * Math.PI);
+    const angle = (2 * Math.PI + (rotation % (2 * Math.PI))) % (2 * Math.PI);
     if (angle > 5 * (Math.PI / 3) || angle <= 1 * (Math.PI / 3)) return 'A';
-    if (angle > 1 * (Math.PI / 3) && angle <= 3 * (Math.PI / 3)) return 'B';
-    return 'C';
+    else if (angle > 1 * (Math.PI / 3) && angle <= 3 * (Math.PI / 3)) return 'B';
+    else return 'C';
   }
 }
